@@ -28,7 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="declarations" options={{ headerShown: true, title: 'Driver declarations' }} />
         <Stack.Screen name="verify" options={{ headerShown: true, title: 'Verification' }} />
         <Stack.Screen name="subscription" options={{ headerShown: true, title: 'Driver wallet' }} />
-        <Stack.Screen name="settings" options={{ headerShown: true, title: 'Settings' }} />
+        <Stack.Screen name="settings/index" options={{ headerShown: true, title: 'Settings' }} />
         <Stack.Screen name="settings/refund" options={{ headerShown: true, title: 'Wallet refund' }} />
       </Stack>
     </SafeAreaProvider>
