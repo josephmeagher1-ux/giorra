@@ -6,7 +6,7 @@ import { Heading, Body, Caption } from '@/components/ui/Heading';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Pill } from '@/components/ui/Pill';
-import { DRIVER_DECLARATIONS } from '@drivey/shared';
+import { DRIVER_DECLARATIONS } from '@giorra/shared';
 import { acceptDeclarations, getDeclarationsAcceptance } from '@/lib/api';
 
 export default function DeclarationsScreen() {
@@ -27,7 +27,7 @@ export default function DeclarationsScreen() {
     <Screen scroll>
       <Heading level="xl">Driver declarations</Heading>
       <Body muted>
-        Drivey is a cost-sharing platform. To post trips you need to confirm the following so we
+        Giorra is a cost-sharing platform. To post trips you need to confirm the following so we
         have an audit trail if regulators or insurers ever ask.
       </Body>
       {existing ? (

@@ -13,7 +13,7 @@ import {
   listVehicles,
   previewTripCost,
 } from '@/lib/api';
-import { recurrencePatternSchema, type CostBreakdown as Breakdown, type DayOfWeek, type RecurrenceCategory } from '@drivey/shared';
+import { recurrencePatternSchema, type CostBreakdown as Breakdown, type DayOfWeek, type RecurrenceCategory } from '@giorra/shared';
 import { theme } from '@/lib/theme';
 
 const LOCATIONS = {

@@ -19,4 +19,4 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm ci --legacy-peer-deps
-      - run: OPS_RUN_ONCE=true npm run start --workspace @drivey/ops-worker
+      - run: OPS_RUN_ONCE=true npm run start --workspace @giorra/ops-worker

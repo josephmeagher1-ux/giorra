@@ -11,7 +11,7 @@ import { StarPicker } from '@/components/StarPicker';
 import { getEscrowBooking, submitRating } from '@/lib/escrow';
 import { accrueDriverFee, freeTripsRemaining } from '@/lib/billing';
 import { SELF } from '@/lib/mock/data';
-import { DRIVER_TRIP_FEE_EUR, FREE_DRIVER_TRIPS } from '@drivey/shared';
+import { DRIVER_TRIP_FEE_EUR, FREE_DRIVER_TRIPS } from '@giorra/shared';
 
 export default function RateBookingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -59,7 +59,7 @@ export default function RateBookingScreen() {
           walletMessage = `Free trip used — ${result.free_trips_remaining} of ${FREE_DRIVER_TRIPS} free trips remaining.`;
           break;
         case 'paid_from_wallet':
-          walletMessage = `€${DRIVER_TRIP_FEE_EUR.toFixed(2)} debited from your Drivey wallet. Remaining balance €${result.wallet.balance_eur.toFixed(2)}.`;
+          walletMessage = `€${DRIVER_TRIP_FEE_EUR.toFixed(2)} debited from your Giorra wallet. Remaining balance €${result.wallet.balance_eur.toFixed(2)}.`;
           break;
         case 'outstanding':
           walletMessage = `€${DRIVER_TRIP_FEE_EUR.toFixed(2)} owed. Top up your wallet on the billing screen.`;
@@ -101,8 +101,8 @@ export default function RateBookingScreen() {
         <Card style={{ gap: 8 }}>
           <Heading level="md">Did the rider pay you?</Heading>
           <Caption>
-            Drivey only charges its platform fee when you confirm you actually received payment.
-            If the rider didn’t pay, you owe Drivey nothing and the rider gets flagged on their
+            Giorra only charges its platform fee when you confirm you actually received payment.
+            If the rider didn’t pay, you owe Giorra nothing and the rider gets flagged on their
             profile.
           </Caption>
           {onFreeTier ? (

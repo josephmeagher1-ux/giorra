@@ -1,4 +1,4 @@
-# Drivey Handover — Status
+# Giorra Handover — Status
 
 ## What runs today
 
@@ -21,14 +21,14 @@ no API keys you can:
 npm install --legacy-peer-deps
 
 # run the shared-package tests (34 tests)
-npm test --workspace @drivey/shared
+npm test --workspace @giorra/shared
 
 # typecheck mobile + ops
 npm run typecheck --workspace mobile
-npm run typecheck --workspace @drivey/ops-worker
+npm run typecheck --workspace @giorra/ops-worker
 
 # smoke-run the ops worker
-OPS_RUN_ONCE=true npm run start --workspace @drivey/ops-worker
+OPS_RUN_ONCE=true npm run start --workspace @giorra/ops-worker
 
 # start the mobile app
 npm run start --workspace mobile

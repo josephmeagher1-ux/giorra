@@ -9,7 +9,7 @@ export const DRIVER_DECLARATIONS = {
     {
       id: 'private_policy',
       text:
-        "I confirm that my vehicle is privately insured and my policy does not exclude carpooling. Drivey is a cost-sharing platform — I am not operating as a passenger transport business.",
+        "I confirm that my vehicle is privately insured and my policy does not exclude carpooling. Giorra is a cost-sharing platform — I am not operating as a passenger transport business.",
     },
     {
       id: 'not_for_hire',
@@ -19,7 +19,7 @@ export const DRIVER_DECLARATIONS = {
     {
       id: 'pre_arranged',
       text:
-        "All trips are pre-arranged before the journey begins. Drivey will not enable street-hail or on-the-fly hiring.",
+        "All trips are pre-arranged before the journey begins. Giorra will not enable street-hail or on-the-fly hiring.",
     },
     {
       id: 'capacity',
@@ -31,7 +31,7 @@ export const DRIVER_DECLARATIONS = {
     {
       id: 'cost_share',
       text:
-        "I understand Drivey is a cost-sharing platform. The driver pays their own share too, and my contribution is capped at calculated cost.",
+        "I understand Giorra is a cost-sharing platform. The driver pays their own share too, and my contribution is capped at calculated cost.",
     },
   ],
 } as const;

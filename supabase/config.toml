@@ -1,5 +1,5 @@
 [project]
-id = "drivey-local"
+id = "giorra-local"
 
 [api]
 enabled = true

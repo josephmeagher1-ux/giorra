@@ -44,7 +44,7 @@ export default function SignInScreen() {
               <View style={styles.logoMark}>
                 <Feather name="navigation-2" size={22} color="#fff" />
               </View>
-              <Text style={styles.wordmark}>Drivey</Text>
+              <Text style={styles.wordmark}>Giorra</Text>
             </View>
             <Text style={styles.tagline}>
               Carpooling for{'\n'}the trips you’re already taking.
@@ -82,7 +82,7 @@ export default function SignInScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Drivey is not a taxi or hackney service. Drivers never earn above calculated cost; the
+              Giorra is not a taxi or hackney service. Drivers never earn above calculated cost; the
               driver pays their own share too.
             </Text>
           </View>

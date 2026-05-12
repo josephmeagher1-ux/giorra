@@ -3,7 +3,7 @@ import {
   buildDirectionsForProvider,
   type LatLng,
   type MapsProvider,
-} from '@drivey/shared';
+} from '@giorra/shared';
 
 export async function openInExternalMap(
   provider: MapsProvider,

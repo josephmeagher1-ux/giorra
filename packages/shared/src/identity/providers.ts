@@ -1,7 +1,7 @@
 import type { VerificationProvider } from './types';
 
 /**
- * Catalog of providers Drivey can use today or plug in later. Order is the
+ * Catalog of providers Giorra can use today or plug in later. Order is the
  * recommended priority for the Irish market: realistic, defensible, no NDLS
  * dependency.
  */
@@ -82,7 +82,7 @@ export const VERIFICATION_PROVIDERS: VerificationProvider[] = [
     implemented: true,
     paid: false,
     description:
-      'Driver requests a free Driver Statement from NDLS and forwards it to Drivey. Manually reviewed.',
+      'Driver requests a free Driver Statement from NDLS and forwards it to Giorra. Manually reviewed.',
     integration_path: 'apps/mobile/lib/identity.ts → driverStatementUploadProvider',
     ireland_notes:
       'NDLS does not send statements to third parties, so the driver must request and forward it.',

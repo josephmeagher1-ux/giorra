@@ -1,4 +1,4 @@
-# Liability + income: what changes if Drivey takes money
+# Liability + income: what changes if Giorra takes money
 
 This is not legal advice. The thresholds and rules below are sketched from
 public Irish/EU guidance — get an Irish solicitor to review before you do
@@ -6,17 +6,17 @@ anything that involves taking fees.
 
 ## Three operating modes (pick one)
 
-| Mode | What Drivey does with money | Income for you? | What you have to be |
+| Mode | What Giorra does with money | Income for you? | What you have to be |
 | --- | --- | --- | --- |
-| **A. Cost-share only, no fee** | Money flows rider → driver only; Drivey is just a notice board | None | An individual running an app. No special filings until users complain or you scale. |
-| **B. Pass-through escrow, no fee** | Money sits briefly in Stripe Connect, settles to driver/charity. Drivey never holds funds | None | Likely registered as a sole trader/limited company because Stripe Connect needs a real entity. No VAT, no income tax on user money. |
-| **C. Platform fee** | Drivey takes a percentage off each successful settlement | Yes | A real Irish business: sole trader or LTD, with all the obligations below. |
+| **A. Cost-share only, no fee** | Money flows rider → driver only; Giorra is just a notice board | None | An individual running an app. No special filings until users complain or you scale. |
+| **B. Pass-through escrow, no fee** | Money sits briefly in Stripe Connect, settles to driver/charity. Giorra never holds funds | None | Likely registered as a sole trader/limited company because Stripe Connect needs a real entity. No VAT, no income tax on user money. |
+| **C. Platform fee** | Giorra takes a percentage off each successful settlement | Yes | A real Irish business: sole trader or LTD, with all the obligations below. |
 
 The escrow model you described maps to **Mode B** very naturally. You don’t need
 fees to make it work. If you ever want fees later you can switch to **Mode C**
 without redesigning the product.
 
-## What you take on once money touches Drivey (Modes B and C)
+## What you take on once money touches Giorra (Modes B and C)
 
 Even without taking a fee:
 
@@ -35,7 +35,7 @@ Even without taking a fee:
 
 ## What additional things kick in once you keep any of the money (Mode C)
 
-- **Income tax** on Drivey’s fee revenue. Sole trader: file Form 11 yearly,
+- **Income tax** on Giorra’s fee revenue. Sole trader: file Form 11 yearly,
   pay income tax + USC + PRSI on net profit.
 - **VAT registration threshold** in Ireland is €42,500 for services
   (2026 figure — confirm at the time). Below that you can choose not to
@@ -50,7 +50,7 @@ Even without taking a fee:
 ## What stays the same in every mode
 
 - The **insurance/SPSV story is about what the driver does**, not about what
-  Drivey does. Even Mode A doesn’t shield the driver from insurance issues
+  Giorra does. Even Mode A doesn’t shield the driver from insurance issues
   if they’re plying for hire. That’s why the dual-ceiling pricing and the
   cost-sharing framing matter regardless.
 - **Defamation / content liability** is roughly the same in any mode — you
@@ -67,7 +67,7 @@ Even without taking a fee:
   card processing fee from the rider; drivers receive net minus Stripe’s fee.
 - **Donations** to charity flow as a separate Stripe charge to the charity’s
   own Stripe account (or transferred from your account if you’re acting as
-  agent). Avoid having Drivey hold charitable funds.
+  agent). Avoid having Giorra hold charitable funds.
 - Don’t accept tips, donations to yourself, or anything that looks like
   revenue while you are still in Mode B.
 
@@ -82,7 +82,7 @@ You can take a small fee and stay almost as light as Mode B. The mechanism:
 - Stripe splits the payment at source. You never hold rider funds. Stripe is
   the regulated payments party.
 - No fee is charged on refunds (driver no-show) or charity donations (rider
-  no-show). Drivey only earns when a real trip happens.
+  no-show). Giorra only earns when a real trip happens.
 
 What this changes versus the no-fee Mode B:
 
@@ -103,7 +103,7 @@ Three pitfalls that catch almost everyone:
    that you run from Ireland as Irish tax-resident anyway. An Estonian OÜ or
    a Delaware LLC operated from your kitchen doesn't escape Irish tax.
 2. **Consumer protection follows the user.** Brussels I-bis and Rome I make
-   Irish consumer law apply to Irish users regardless of where Drivey is
+   Irish consumer law apply to Irish users regardless of where Giorra is
    incorporated. You cannot opt out of refund rules, cancellation rights,
    or the EU online-dispute-resolution requirement by being foreign.
 3. **GDPR and DSA apply to EU users.** Same story — incorporation doesn't
@@ -145,8 +145,8 @@ classifieds site, and the safe harbours are very strong.
 
 ### Phase 1 — Notice board (default in this codebase)
 
-- Drivey lists trips, matches users, runs the rating + verification systems.
-  **Drivey never touches money.** Riders and drivers settle in cash or Revolut.
+- Giorra lists trips, matches users, runs the rating + verification systems.
+  **Giorra never touches money.** Riders and drivers settle in cash or Revolut.
 - Charity fallback becomes a social commitment, not an escrow. The pickup
   confirmation flow still works; it just doesn’t move money.
 - Your obligations: privacy policy, terms of service, takedown process.
@@ -158,11 +158,11 @@ Enable with `EXPO_PUBLIC_MONEY_FLOW=notice_board` (the default).
 ### Phase 1.5 — Driver-paid post-trip success fee (recommended next step)
 
 The cleanest way to generate revenue without taking on rider-facing
-consumer liability. Drivey charges **the driver** — never the rider —
+consumer liability. Giorra charges **the driver** — never the rider —
 a small fixed fee per completed trip where the driver confirms in the
 rating step that they actually received payment from the rider.
 
-- **No money moves through Drivey on the rider→driver leg.** Rider pays
+- **No money moves through Giorra on the rider→driver leg.** Rider pays
   driver in cash or Revolut as in Phase 1.
 - **Driver is your customer, not the rider.** This single fact removes
   most of the consumer-law surface:
@@ -170,7 +170,7 @@ rating step that they actually received payment from the rider.
   - No ODR portal requirement on the rider side
   - No PCI scope for rider payments
   - No small-claims-court exposure from riders (no privity)
-- **Prepaid Drivey wallet (default).**
+- **Prepaid Giorra wallet (default).**
   - **First 10 confirmed-paid trips are free** — new drivers prove the
     platform before paying anything. Onboarding lever, not a permanent
     discount.
@@ -178,18 +178,18 @@ rating step that they actually received payment from the rider.
     (card, Apple Pay, or Google Pay). Minimum top-up is **€5**.
   - **Loyalty bonus on larger packs** — top up €10 and get €10.25 credit
     (+5 free trips), top up €25 and get €26.00 credit (+20 free trips).
-    The bonus equals exactly the Stripe fees Drivey saves by consolidating
-    into one transaction, so the bigger pack is cost-neutral for Drivey
+    The bonus equals exactly the Stripe fees Giorra saves by consolidating
+    into one transaction, so the bigger pack is cost-neutral for Giorra
     versus the equivalent number of €5 top-ups while feeling like a
     psychological win for the driver.
   - Each confirmed-paid trip debits €0.05 from the wallet.
-  - Optional opt-in auto top-up: when balance drops to **€0.20**, Drivey
+  - Optional opt-in auto top-up: when balance drops to **€0.20**, Giorra
     charges the saved card for the chosen pack. Off by default.
   - One Stripe transaction per top-up amortises card processing fees
     across ~200 trips for a €10 pack (~€0.002 of Stripe fee per trip).
   - No SEPA Direct Debit mandate, no recurring authorization, no IBAN.
-  - Wallet balance is held in Drivey's Stripe customer balance, not in a
-    Drivey-controlled bank account, so e-money licensing doesn't apply.
+  - Wallet balance is held in Giorra's Stripe customer balance, not in a
+    Giorra-controlled bank account, so e-money licensing doesn't apply.
   - Driver psychology: prepaid mobile credit / coffee-shop card.
 - **Alternative — SEPA Direct Debit** is also wired up for drivers who
   prefer it, but the default flow uses the wallet.
@@ -258,6 +258,6 @@ into existence and toggle a flag".
 
 Default the codebase to **Phase 1 / notice-board mode** (already done).
 Register as a sole trader so the Stripe Billing path is available when you
-need it. Don’t accept money flowing through Drivey until you’re ready to
+need it. Don’t accept money flowing through Giorra until you’re ready to
 deal with the small support overhead of doing so. Re-evaluate offshore or
 LTD structures only if revenue ever justifies it.

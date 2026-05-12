@@ -82,7 +82,7 @@ describe('top-up bonus', () => {
     expect(twentyFive.effective_per_trip_eur).toBeLessThan(ten.effective_per_trip_eur);
   });
 
-  it('per-pack net to Drivey matches the baseline-pack net at the same gross', () => {
+  it('per-pack net to Giorra matches the baseline-pack net at the same gross', () => {
     // Two €5 packs: gross €10, Stripe fees €0.64 → net €9.36
     // One €10 pack with bonus: gross €10, Stripe fee €0.39, +€0.25 bonus
     //   given back as credit → effective net €9.36

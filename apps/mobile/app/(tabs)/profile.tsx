@@ -20,7 +20,7 @@ import {
   activityProgress,
   canPerformAction,
   DEFAULT_CHARITIES,
-} from '@drivey/shared';
+} from '@giorra/shared';
 import { flags } from '@/lib/featureFlags';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -145,7 +145,7 @@ export default function ProfileScreen() {
         <Heading level="md">Driver wallet</Heading>
         <Body muted>
           Pay-as-you-go billing. Your first trips are free; after that a small per-trip fee comes
-          out of your Drivey wallet.
+          out of your Giorra wallet.
         </Body>
         <Button title="Open billing" variant="secondary" onPress={() => router.push('/subscription')} />
       </Card>

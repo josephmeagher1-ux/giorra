@@ -23,12 +23,12 @@ import {
 } from '@/lib/escrow';
 import { getProfile } from '@/lib/api';
 import { createAndPresentPaymentSheet } from '@/lib/payments';
-import { flags, moneyTouchesDrivey } from '@/lib/featureFlags';
+import { flags, moneyTouchesGiorra } from '@/lib/featureFlags';
 import { theme } from '@/lib/theme';
 import { SELF } from '@/lib/mock/data';
 
 const charities = listCharities();
-const NOTICE_BOARD = !moneyTouchesDrivey();
+const NOTICE_BOARD = !moneyTouchesGiorra();
 
 export default function BookingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -104,7 +104,7 @@ export default function BookingDetailScreen() {
         <Card style={{ gap: 4 }}>
           <Heading level="md">Payment</Heading>
           <Body muted>
-            Drivey does not handle money. Pay your driver directly in cash or by Revolut after the
+            Giorra does not handle money. Pay your driver directly in cash or by Revolut after the
             trip. Suggested total: €{b.total_eur.toFixed(2)}.
           </Body>
           <Pill label="Notice-board mode" variant="info" />

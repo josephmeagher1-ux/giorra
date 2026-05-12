@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Pill } from '@/components/ui/Pill';
 import { addVehicle } from '@/lib/api';
-import { vehicleSchema, type VehicleInput } from '@drivey/shared';
+import { vehicleSchema, type VehicleInput } from '@giorra/shared';
 import { theme } from '@/lib/theme';
 
 const FUELS: Array<VehicleInput['fuel']> = [

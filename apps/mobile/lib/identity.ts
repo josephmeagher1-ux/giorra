@@ -1,5 +1,5 @@
 /**
- * Drivey verification service.
+ * Giorra verification service.
  *
  * This file is the only swap point when paid KYC / VRM providers come online.
  * Today it stores verification records in memory and simulates each provider
@@ -16,7 +16,7 @@ import {
   type VerificationRecord,
   type VerificationStatus,
   type VerificationSubject,
-} from '@drivey/shared';
+} from '@giorra/shared';
 import { flags } from './featureFlags';
 
 let RECORDS: VerificationRecord[] = [];

@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@drivey/shared": "*",
+    "@giorra/shared": "*",
     "@expo/metro-runtime": "~6.1.2",
     "expo": "~54.0.33",
     "expo-constants": "~17.1.4",

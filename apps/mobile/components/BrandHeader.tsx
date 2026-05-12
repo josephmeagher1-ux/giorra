@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/lib/theme';
 
 /**
- * Top brand header rendered above every tab. Keeps the Drivey wordmark
+ * Top brand header rendered above every tab. Keeps the Giorra wordmark
  * consistently visible while leaving room for a settings affordance.
  */
 export function BrandHeader() {
@@ -38,7 +38,7 @@ export function BrandHeader() {
             <Feather name="navigation-2" size={18} color="#fff" />
           </View>
           <Text style={{ fontSize: 22, fontWeight: '800', color: theme.colors.text, letterSpacing: -0.5 }}>
-            Drivey
+            Giorra
           </Text>
         </View>
         <Pressable

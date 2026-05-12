@@ -44,8 +44,8 @@ CREATE POLICY billing_mandates_driver_read ON public.billing_mandates
 CREATE POLICY billing_mandates_driver_write ON public.billing_mandates
   FOR UPDATE USING (driver_id = auth.uid());
 
--- Prepaid Drivey wallet. Balance is held in Stripe's customer balance, not
--- in a Drivey bank account, so e-money licensing doesn't apply.
+-- Prepaid Giorra wallet. Balance is held in Stripe's customer balance, not
+-- in a Giorra bank account, so e-money licensing doesn't apply.
 
 CREATE TABLE public.driver_wallets (
   driver_id                  UUID PRIMARY KEY REFERENCES public.profiles(id),

@@ -14,7 +14,7 @@ import {
   topUpBonusFor,
   topUpCreditFor,
   type TopUpAmount,
-} from '@drivey/shared';
+} from '@giorra/shared';
 import {
   creditWallet,
   freeTripsRemaining,
@@ -62,7 +62,7 @@ export default function SubscriptionScreen() {
         'Topped up',
         bonus_eur > 0
           ? `€${amount.toFixed(2)} paid · +€${bonus_eur.toFixed(2)} loyalty bonus · €${credit.toFixed(2)} added to your wallet.`
-          : `€${amount.toFixed(2)} added to your Drivey wallet.`,
+          : `€${amount.toFixed(2)} added to your Giorra wallet.`,
       );
     } finally {
       setBusyPack(null);
@@ -82,10 +82,10 @@ export default function SubscriptionScreen() {
     <Screen scroll>
       <Heading level="xl">Driver billing</Heading>
       <Body muted>
-        Drivey charges drivers a small per-trip fee, only when the driver confirms they were paid
-        by the rider. Riders never pay Drivey. Your first {FREE_DRIVER_TRIPS} confirmed-paid trips
+        Giorra charges drivers a small per-trip fee, only when the driver confirms they were paid
+        by the rider. Riders never pay Giorra. Your first {FREE_DRIVER_TRIPS} confirmed-paid trips
         are free. After that each trip debits €{DRIVER_TRIP_FEE_EUR.toFixed(2)} from your prepaid
-        Drivey wallet.
+        Giorra wallet.
       </Body>
 
       <Card style={{ gap: 8 }}>
@@ -107,7 +107,7 @@ export default function SubscriptionScreen() {
       </Card>
 
       <Card style={{ gap: 8 }}>
-        <Heading level="md">Your Drivey wallet</Heading>
+        <Heading level="md">Your Giorra wallet</Heading>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Caption>Current balance</Caption>
           <Body style={{ fontWeight: '700' }}>€{wallet.balance_eur.toFixed(2)}</Body>
@@ -168,7 +168,7 @@ export default function SubscriptionScreen() {
       <Card style={{ gap: theme.spacing(2) }}>
         <Heading level="md">Auto top-up</Heading>
         <Caption>
-          When your balance drops to €{AUTO_TOPUP_THRESHOLD_EUR.toFixed(2)}, Drivey automatically
+          When your balance drops to €{AUTO_TOPUP_THRESHOLD_EUR.toFixed(2)}, Giorra automatically
           charges your saved card for €{wallet.auto_topup_pack.toFixed(2)}. Off by default — turn
           on only if you want it.
         </Caption>

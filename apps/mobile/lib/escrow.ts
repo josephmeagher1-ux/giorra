@@ -1,6 +1,6 @@
 /**
  * In-memory escrow data layer that mirrors the production state-machine flow.
- * Backed by `@drivey/shared` pure transitions. Swap with Supabase + edge
+ * Backed by `@giorra/shared` pure transitions. Swap with Supabase + edge
  * functions later.
  */
 import {
@@ -14,7 +14,7 @@ import {
   type EscrowPhase,
   type EscrowState,
   type RatingDirection,
-} from '@drivey/shared';
+} from '@giorra/shared';
 import { SELF } from './mock/data';
 import type { MockRating } from './mock/data';
 

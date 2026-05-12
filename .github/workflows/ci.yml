@@ -16,6 +16,6 @@ jobs:
           cache: npm
       - run: npm ci --legacy-peer-deps
       - name: Typecheck shared package
-        run: npm run typecheck --workspace @drivey/shared
+        run: npm run typecheck --workspace @giorra/shared
       - name: Test shared package
-        run: npm run test --workspace @drivey/shared
+        run: npm run test --workspace @giorra/shared

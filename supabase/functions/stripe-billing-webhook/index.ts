@@ -16,7 +16,7 @@
  *     accruing further fees.
  *
  * Stripe handles all retries, dunning, and SEPA-DD specifics. This function
- * only needs to keep Drivey's local accrual table in sync.
+ * only needs to keep Giorra's local accrual table in sync.
  */
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import Stripe from 'https://esm.sh/stripe@13?target=denonext';

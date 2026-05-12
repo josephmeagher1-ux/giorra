@@ -1,4 +1,4 @@
-# @drivey/ops-worker
+# @giorra/ops-worker
 
 Long-running Node service for jobs that don't fit Supabase Edge Functions
 (weekly fuel scraping, compliance summaries, recurring-trip materialization).

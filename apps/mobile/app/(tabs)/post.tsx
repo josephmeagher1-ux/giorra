@@ -10,7 +10,7 @@ import { Pill } from '@/components/ui/Pill';
 import { CostBreakdown } from '@/components/CostBreakdown';
 import { createTrip, getDeclarationsAcceptance, listVehicles, previewTripCost } from '@/lib/api';
 import { listVerifications } from '@/lib/identity';
-import { canPerformAction, type CostBreakdown as Breakdown } from '@drivey/shared';
+import { canPerformAction, type CostBreakdown as Breakdown } from '@giorra/shared';
 import { theme } from '@/lib/theme';
 
 const DEFAULT_LOCATIONS = {
@@ -113,7 +113,7 @@ export default function PostTripScreen() {
   return (
     <Screen scroll>
       <Heading level="xl">Post a trip</Heading>
-      <Body muted>You declare a journey you’re already taking. Drivey caps the contribution at calculated cost.</Body>
+      <Body muted>You declare a journey you’re already taking. Giorra caps the contribution at calculated cost.</Body>
 
       <Card style={{ gap: theme.spacing(2) }}>
         <Heading level="md">Route</Heading>

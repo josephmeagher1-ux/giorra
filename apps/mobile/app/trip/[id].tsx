@@ -10,7 +10,7 @@ import { CostBreakdown } from '@/components/CostBreakdown';
 import { MapPreview } from '@/components/MapPreview';
 import { bookSeat, getTrip, previewTripCost } from '@/lib/api';
 import { openInExternalMap } from '@/lib/navHandoff';
-import { checkBookingArrangement, type CostBreakdown as Breakdown } from '@drivey/shared';
+import { checkBookingArrangement, type CostBreakdown as Breakdown } from '@giorra/shared';
 import { theme } from '@/lib/theme';
 
 function initials(name: string) {

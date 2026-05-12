@@ -1,16 +1,16 @@
 /**
  * Driver-paid, post-trip success fee.
  *
- * Drivey charges the driver — never the rider — a small fixed amount per
+ * Giorra charges the driver — never the rider — a small fixed amount per
  * completed trip where the driver confirms they received payment from the
  * rider. Aggregated and invoiced monthly via Stripe Billing metered usage,
  * so a per-trip Stripe processing fee is avoided.
  *
  * Why this shape:
- *   - The rider is not Drivey's customer → no B2C consumer-law exposure on
+ *   - The rider is not Giorra's customer → no B2C consumer-law exposure on
  *     the rider side.
- *   - The driver is a B2B customer of Drivey → light contract-based duties.
- *   - Drivey never touches rider→driver money → no Stripe Connect, no
+ *   - The driver is a B2B customer of Giorra → light contract-based duties.
+ *   - Giorra never touches rider→driver money → no Stripe Connect, no
  *     escrow obligations, no PCI scope for rider payments.
  *
  * Storage of FeeAccrual records lives in Supabase in production; the local
@@ -18,10 +18,10 @@
  */
 
 /**
- * Fee Drivey charges the driver per confirmed-paid trip, in EUR.
+ * Fee Giorra charges the driver per confirmed-paid trip, in EUR.
  *
  * Kept flat (not banded by trip price) so the cost-sharing framing stays
- * defensible: Drivey's fee never scales with rider price, so it cannot be
+ * defensible: Giorra's fee never scales with rider price, so it cannot be
  * interpreted as a commission on transport. €0.20 is ~2% on a typical
  * €10 ride and ~1% on a longer route — well below any commercial taxi or
  * ride-share comparable.
@@ -33,7 +33,7 @@ export const MIN_INVOICE_TOTAL_EUR = 5.0;
 
 /**
  * Stripe EU fee shape for the supported collection methods. Used by
- * `estimateStripeFee` to surface "Drivey nets €X" in the driver UI.
+ * `estimateStripeFee` to surface "Giorra nets €X" in the driver UI.
  *
  * Source: Stripe pricing for EU businesses, May 2026. Update when Stripe
  * publishes new rates.
@@ -48,7 +48,7 @@ export type BillingMechanism = 'sepa_debit' | 'card';
 export interface FeeEstimate {
   gross_eur: number;
   stripe_fee_eur: number;
-  net_to_drivey_eur: number;
+  net_to_giorra_eur: number;
   margin_pct: number;
 }
 
@@ -57,7 +57,7 @@ export function estimateStripeFee(args: {
   mechanism: BillingMechanism;
 }): FeeEstimate {
   if (args.gross_eur <= 0) {
-    return { gross_eur: 0, stripe_fee_eur: 0, net_to_drivey_eur: 0, margin_pct: 0 };
+    return { gross_eur: 0, stripe_fee_eur: 0, net_to_giorra_eur: 0, margin_pct: 0 };
   }
   const cfg = STRIPE_FEES[args.mechanism];
   const raw = args.gross_eur * cfg.percentage + cfg.fixed_eur;
@@ -67,7 +67,7 @@ export function estimateStripeFee(args: {
   return {
     gross_eur: args.gross_eur,
     stripe_fee_eur: fee,
-    net_to_drivey_eur: net,
+    net_to_giorra_eur: net,
     margin_pct: Math.round((net / args.gross_eur) * 1000) / 10,
   };
 }

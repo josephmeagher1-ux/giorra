@@ -1,5 +1,5 @@
 /**
- * Types for Drivey's identity / vehicle / insurance verification flows.
+ * Types for Giorra's identity / vehicle / insurance verification flows.
  *
  * Important context (Ireland, as of 2026):
  *
@@ -47,7 +47,7 @@ export interface VerificationProvider {
   id: VerificationProviderId;
   display_name: string;
   subjects: VerificationSubject[];
-  /** Whether this is wired up today in Drivey's mobile app */
+  /** Whether this is wired up today in Giorra's mobile app */
   implemented: boolean;
   /** Whether this requires a paid account / API key */
   paid: boolean;

@@ -1,12 +1,12 @@
 /**
  * Driver-impact metrics — the numbers we surface on the in-app dashboard so
- * drivers see the *positive* impact of using Drivey:
+ * drivers see the *positive* impact of using Giorra:
  *   - how much money they've shared (passengers contributing toward fuel
  *     and depreciation) — frames the platform as savings, not commerce.
  *   - how much carbon they've helped avoid by carrying passengers who would
  *     otherwise have driven separately.
  *
- * These reinforce Drivey's cost-sharing / sustainability narrative and give
+ * These reinforce Giorra's cost-sharing / sustainability narrative and give
  * drivers a reason to stay engaged beyond the ride itself.
  */
 
@@ -29,7 +29,7 @@ export interface ImpactSummary {
 /**
  * How much CO₂ a single trip with N passengers prevented from being emitted
  * — i.e., if those N passengers had each driven their own car, that's
- * `distance_km × passengers × g/km` of emissions Drivey saved.
+ * `distance_km × passengers × g/km` of emissions Giorra saved.
  */
 export function carbonAvoidedKg(args: {
   distance_km: number;

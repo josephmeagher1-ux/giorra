@@ -5,7 +5,7 @@ import type {
 } from './types';
 
 /**
- * Configurable Drivey trust policy. The defaults below assume a launch posture
+ * Configurable Giorra trust policy. The defaults below assume a launch posture
  * where drivers must be document-verified and have a current insurance proof,
  * but the platform doesn't try to claim more than it can actually prove.
  */

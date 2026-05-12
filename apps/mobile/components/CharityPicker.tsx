@@ -4,7 +4,7 @@ import { Card } from './ui/Card';
 import { Heading, Body, Caption } from './ui/Heading';
 import { Pill } from './ui/Pill';
 import { theme } from '@/lib/theme';
-import type { Charity } from '@drivey/shared';
+import type { Charity } from '@giorra/shared';
 
 interface Props {
   charities: Charity[];
@@ -18,7 +18,7 @@ export function CharityPicker({ charities, selectedId, onSelect }: Props) {
       <Heading level="md">Choose a charity</Heading>
       <Body muted>
         If pickup doesn’t happen because the rider isn’t there, your deposit goes to this charity
-        instead. Drivey never keeps the money.
+        instead. Giorra never keeps the money.
       </Body>
       <View style={{ gap: 8 }}>
         {charities.map((c) => (

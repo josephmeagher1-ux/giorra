@@ -1,7 +1,7 @@
 /**
  * Driver subscription plans. This is a B2B SaaS sale to drivers, not a
  * per-ride fee on rider→driver payments. That distinction is what keeps
- * Drivey out of the rider-facing consumer-protection regime.
+ * Giorra out of the rider-facing consumer-protection regime.
  *
  * In production these plans live in Stripe Billing. The objects below are
  * the local source of truth used by the mobile app to render plan choice

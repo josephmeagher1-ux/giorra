@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Drivey",
-    "slug": "drivey",
+    "name": "Giorra",
+    "slug": "giorra",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "drivey",
+    "scheme": "giorra",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ie.drivey.app"
+      "bundleIdentifier": "ie.giorra.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +24,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "ie.drivey.app"
+      "package": "ie.giorra.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -34,7 +34,7 @@
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": false,
-      "baseUrl": "/drivey"
+      "baseUrl": "/giorra"
     },
     "extra": {
       "router": {

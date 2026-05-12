@@ -26,7 +26,7 @@ import {
   type TopUpAmount,
   type TopUpEvent,
   type Wallet,
-} from '@drivey/shared';
+} from '@giorra/shared';
 
 let ACCRUALS: FeeAccrual[] = [];
 let WALLETS = new Map<string, Wallet>();

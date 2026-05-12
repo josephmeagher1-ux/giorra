@@ -1,5 +1,5 @@
 {
-  "name": "Drivey (Codespaces)",
+  "name": "Giorra (Codespaces)",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
   "postCreateCommand": "npm install --legacy-peer-deps",
   "forwardPorts": [8081, 19000, 19001, 19002, 54321],

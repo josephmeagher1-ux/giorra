@@ -41,7 +41,7 @@ jobs:
         run: touch apps/mobile/dist/.nojekyll
 
       # GitHub Pages returns a 404 for unknown paths instead of falling back
-      # to index.html, which would break deep links like /drivey/profile in
+      # to index.html, which would break deep links like /giorra/profile in
       # the SPA. Serving the same shell as 404.html lets the client router
       # take over.
       - name: Add SPA 404 fallback

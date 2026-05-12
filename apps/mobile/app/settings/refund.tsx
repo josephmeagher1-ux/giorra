@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Pill } from '@/components/ui/Pill';
 import { quoteRefundFor, requestRefund } from '@/lib/billing';
-import { REFUND_ADMIN_FEE_EUR, WALLET_INACTIVITY_EXPIRY_MONTHS } from '@drivey/shared';
+import { REFUND_ADMIN_FEE_EUR, WALLET_INACTIVITY_EXPIRY_MONTHS } from '@giorra/shared';
 import { SELF } from '@/lib/mock/data';
 
 /**
@@ -42,7 +42,7 @@ export default function WalletRefundScreen() {
       <Heading level="xl">Request a wallet refund</Heading>
       <Body muted>
         Refunds are available on request as required by EU consumer law. Most drivers find it
-        easier to let the balance roll forward — your Drivey credit doesn’t expire for{' '}
+        easier to let the balance roll forward — your Giorra credit doesn’t expire for{' '}
         {WALLET_INACTIVITY_EXPIRY_MONTHS} months of inactivity.
       </Body>
 
@@ -60,7 +60,7 @@ export default function WalletRefundScreen() {
       <Card style={{ gap: 8 }}>
         <Heading level="md">Before you confirm</Heading>
         <Caption>
-          · Loyalty bonus credit (from larger top-ups) is non-refundable because Drivey never
+          · Loyalty bonus credit (from larger top-ups) is non-refundable because Giorra never
           received it in cash.
         </Caption>
         <Caption>

@@ -21,7 +21,7 @@ export default function SettingsScreen() {
         <Heading level="md">Help & support</Heading>
         <Caption>
           For most questions please check the in-app help. For account issues that need a human,
-          email support@drivey.ie — we aim to reply within 5 business days.
+          email support@giorra.ie — we aim to reply within 5 business days.
         </Caption>
         <Button
           title="Wallet refund request"
@@ -33,7 +33,7 @@ export default function SettingsScreen() {
       <Card style={{ gap: 6 }}>
         <Heading level="md">Data & privacy</Heading>
         <Caption>
-          Drivey’s privacy policy explains what we collect and how to request a data export or
+          Giorra’s privacy policy explains what we collect and how to request a data export or
           deletion under GDPR.
         </Caption>
       </Card>

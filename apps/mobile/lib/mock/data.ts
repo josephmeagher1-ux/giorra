@@ -2,7 +2,7 @@ import type {
   CostBreakdown,
   RecurrencePattern,
   VehicleProfile,
-} from '@drivey/shared';
+} from '@giorra/shared';
 
 export interface MockProfile {
   id: string;

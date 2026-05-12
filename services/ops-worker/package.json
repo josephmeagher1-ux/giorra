@@ -1,5 +1,5 @@
 {
-  "name": "@drivey/ops-worker",
+  "name": "@giorra/ops-worker",
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@drivey/shared": "*"
+    "@giorra/shared": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

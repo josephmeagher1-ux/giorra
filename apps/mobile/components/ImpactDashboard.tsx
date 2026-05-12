@@ -4,7 +4,7 @@ import { Card } from './ui/Card';
 import { Heading, Body, Caption } from './ui/Heading';
 import { Pill } from './ui/Pill';
 import { theme } from '@/lib/theme';
-import { summariseDriverImpact, type ImpactSummary } from '@drivey/shared';
+import { summariseDriverImpact, type ImpactSummary } from '@giorra/shared';
 
 interface Props {
   trips: Array<{ distance_km: number; passengers: number; per_seat_eur: number }>;

@@ -1,4 +1,4 @@
-# Drivey Pricing, Compliance, and Build Strategy (Ireland-first)
+# Giorra Pricing, Compliance, and Build Strategy (Ireland-first)
 
 ## Important note
 
@@ -6,7 +6,7 @@ This is a product/compliance design memo, not legal advice. Before launch, get a
 
 ## 1) Regulatory posture: what you are trying to prove
 
-Your strongest position is to show Drivey is **cost-sharing, pre-arranged private travel**, not an SPSV/taxi service.
+Your strongest position is to show Giorra is **cost-sharing, pre-arranged private travel**, not an SPSV/taxi service.
 
 Anchor points from available guidance:
 

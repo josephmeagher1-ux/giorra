@@ -4,8 +4,8 @@ import { Card } from './ui/Card';
 import { Heading, Body, Caption } from './ui/Heading';
 import { Pill } from './ui/Pill';
 import { theme } from '@/lib/theme';
-import type { EscrowPhase, EscrowState } from '@drivey/shared';
-import { computeSettlement, describePhase, PLATFORM_FEE_EUR } from '@drivey/shared';
+import type { EscrowPhase, EscrowState } from '@giorra/shared';
+import { computeSettlement, describePhase, PLATFORM_FEE_EUR } from '@giorra/shared';
 
 const ORDER: EscrowPhase[] = [
   'requested',
@@ -75,7 +75,7 @@ export function EscrowStatus({ state, totalEur, charityName }: {
       ) : null}
       {charityName ? <Caption>Charity fallback: {charityName}</Caption> : null}
       <Caption muted>
-        Drivey keeps €{PLATFORM_FEE_EUR.toFixed(2)} from the driver’s share on successful trips. No
+        Giorra keeps €{PLATFORM_FEE_EUR.toFixed(2)} from the driver’s share on successful trips. No
         fee is taken on refunds or charity donations.
       </Caption>
 

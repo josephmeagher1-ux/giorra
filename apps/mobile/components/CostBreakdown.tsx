@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import type { CostBreakdown as Breakdown } from '@drivey/shared';
+import type { CostBreakdown as Breakdown } from '@giorra/shared';
 import { Card } from './ui/Card';
 import { Body, Caption, Heading } from './ui/Heading';
 import { Pill } from './ui/Pill';

@@ -1,5 +1,5 @@
 /**
- * Drivey escrow booking lifecycle.
+ * Giorra escrow booking lifecycle.
  *
  *  1. requested            — rider asks to join trip
  *  2. accepted             — driver accepts the request

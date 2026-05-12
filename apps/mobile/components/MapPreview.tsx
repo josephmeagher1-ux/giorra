@@ -84,8 +84,8 @@ export function MapPreview({ origin, destination, height = 220, interactive = tr
       .then((L) => {
         if (cancelled || !ref.current) return;
         const node = ref.current as unknown as HTMLDivElement;
-        if (node.dataset.driveyMap === 'mounted') return;
-        node.dataset.driveyMap = 'mounted';
+        if (node.dataset.giorraMap === 'mounted') return;
+        node.dataset.giorraMap = 'mounted';
 
         const midLat = (origin.lat + destination.lat) / 2;
         const midLng = (origin.lng + destination.lng) / 2;
@@ -146,7 +146,7 @@ export function MapPreview({ origin, destination, height = 220, interactive = tr
     return () => {
       cancelled = true;
       if (map) map.remove();
-      if (ref.current) (ref.current as unknown as HTMLDivElement).dataset.driveyMap = '';
+      if (ref.current) (ref.current as unknown as HTMLDivElement).dataset.giorraMap = '';
     };
   }, [origin.lat, origin.lng, destination.lat, destination.lng, interactive]);
 

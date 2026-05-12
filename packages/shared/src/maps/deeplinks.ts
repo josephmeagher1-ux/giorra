@@ -1,6 +1,6 @@
 /**
  * Build deep links for popular navigation apps so a driver can hand off to
- * Google Maps, Waze, or Apple Maps from inside Drivey.
+ * Google Maps, Waze, or Apple Maps from inside Giorra.
  *
  * All builders return both an https universal URL and the native app URL
  * scheme when meaningfully different. Callers should try the native scheme

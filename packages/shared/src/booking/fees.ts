@@ -1,15 +1,15 @@
 /**
  * Platform fee accounting.
  *
- * Drivey takes a tiny per-successful-ride fee. It is invisible to the rider:
+ * Giorra takes a tiny per-successful-ride fee. It is invisible to the rider:
  * the rider always pays the agreed cost-shared price, and the fee comes out
  * of the driver's payout. That way the rider's payment never exceeds the
- * ECC/PBC ceiling and Drivey's framing as a non-commercial cost-sharing
+ * ECC/PBC ceiling and Giorra's framing as a non-commercial cost-sharing
  * platform is preserved.
  *
  * Implementation note: this is mirrored on Stripe Connect via
  * `application_fee_amount` on the PaymentIntent. The driver's Connected
- * Account receives `total - PLATFORM_FEE_EUR`, Drivey receives
+ * Account receives `total - PLATFORM_FEE_EUR`, Giorra receives
  * `PLATFORM_FEE_EUR`. Stripe deducts its card processing fee from the
  * driver's side as well.
  */
@@ -20,7 +20,7 @@ export const PLATFORM_FEE_EUR = 0.05;
 
 /**
  * Whether the platform fee is collected at all for a given final payout.
- * Charity fallback and refund paths skip the fee — Drivey only takes money
+ * Charity fallback and refund paths skip the fee — Giorra only takes money
  * when there was a real, successful trip.
  */
 export function feeAppliesTo(destination: EscrowState['payout_destination']) {
@@ -38,7 +38,7 @@ export interface Settlement {
 /**
  * Splits a held total into final settlement amounts. The math is paranoid:
  * if a small total would make the fee exceed the driver's payout, the fee is
- * waived and Drivey takes nothing. Trips where the ECC/PBC ceiling rounds to
+ * waived and Giorra takes nothing. Trips where the ECC/PBC ceiling rounds to
  * a tiny number (e.g. 0.04 EUR/seat) shouldn't end up with a negative driver
  * payout.
  */

@@ -67,13 +67,13 @@ describe('estimateStripeFee', () => {
   it('returns zeros for empty invoice', () => {
     const empty = estimateStripeFee({ gross_eur: 0, mechanism: 'sepa_debit' });
     expect(empty.stripe_fee_eur).toBe(0);
-    expect(empty.net_to_drivey_eur).toBe(0);
+    expect(empty.net_to_giorra_eur).toBe(0);
     expect(empty.margin_pct).toBe(0);
   });
 
   it('reports the right margin at scale', () => {
     const ten = estimateStripeFee({ gross_eur: 10, mechanism: 'sepa_debit' });
     expect(ten.margin_pct).toBeGreaterThan(90);
-    expect(ten.net_to_drivey_eur).toBeGreaterThan(9.5);
+    expect(ten.net_to_giorra_eur).toBeGreaterThan(9.5);
   });
 });

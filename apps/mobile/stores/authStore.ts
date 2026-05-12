@@ -8,7 +8,7 @@ interface AuthState {
   signOut: () => void;
 }
 
-const STORAGE_KEY = 'drivey-auth';
+const STORAGE_KEY = 'giorra-auth';
 
 /**
  * Tiny synchronous web-only persistence layer. Avoids zustand/middleware

@@ -21,7 +21,7 @@ import {
   VERIFICATION_PROVIDERS,
   type VerificationRecord,
   type VerificationSubject,
-} from '@drivey/shared';
+} from '@giorra/shared';
 import { theme } from '@/lib/theme';
 
 function statusVariant(s: VerificationRecord['status']) {
@@ -92,7 +92,7 @@ export default function VerifyScreen() {
         <Heading level="xl">Verification</Heading>
         <Body muted>
           Ireland has no public NDLS or MIBI API, so verification is a mix of paid KYC, VRM
-          lookups, and driver-uploaded documents. Drivey records every step in an audit log.
+          lookups, and driver-uploaded documents. Giorra records every step in an audit log.
         </Body>
       </View>
 

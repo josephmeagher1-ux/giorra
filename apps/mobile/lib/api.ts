@@ -1,5 +1,5 @@
 /**
- * Drivey app data layer.
+ * Giorra app data layer.
  *
  * Today this is backed by an in-memory mock dataset so the UI is fully
  * functional without paid services or running a Supabase project. When real
@@ -13,7 +13,7 @@ import {
   haversineDistance,
   IRISH_TOLLS,
   type VehicleProfile,
-} from '@drivey/shared';
+} from '@giorra/shared';
 import {
   DRIVERS,
   RECURRING,

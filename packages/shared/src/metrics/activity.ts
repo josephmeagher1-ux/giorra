@@ -1,5 +1,5 @@
 /**
- * Activity-based "verified" status — Drivey's zero-cost soft alternative to
+ * Activity-based "verified" status — Giorra's zero-cost soft alternative to
  * paid KYC. A user becomes activity-verified once they've completed enough
  * trips with positive ratings to demonstrate they're a real person using
  * the platform in good faith. The thresholds are intentionally low so new

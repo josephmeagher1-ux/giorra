@@ -1,5 +1,5 @@
 /**
- * Drivey ops worker
+ * Giorra ops worker
  * -----------------
  * A long-running Node service intended for one of the GitHub Student
  * Developer Pack hosts (DigitalOcean droplet $200/yr credit, Azure free
@@ -20,7 +20,7 @@ import {
   checkPublishGuards,
   generateRecurrenceInstances,
   type RecurrencePattern,
-} from '@drivey/shared';
+} from '@giorra/shared';
 
 interface FuelPrice {
   fuel: 'petrol' | 'diesel' | 'electric';
@@ -137,7 +137,7 @@ if (process.env.OPS_RUN_ONCE === 'true') {
     process.exit(1);
   });
 } else {
-  console.log(`drivey ops-worker booted (tick every ${INTERVAL_MS}ms)`);
+  console.log(`giorra ops-worker booted (tick every ${INTERVAL_MS}ms)`);
   tick().catch(console.error);
   setInterval(() => {
     tick().catch(console.error);

@@ -1,5 +1,5 @@
 /**
- * Prepaid Drivey Wallet.
+ * Prepaid Giorra Wallet.
  *
  * Driver tops up a balance once (via Stripe Checkout one-off charge, Apple
  * Pay, Google Pay, or any other Stripe-supported payment method). Each
@@ -14,8 +14,8 @@
  *     details).
  *   - No recurring authorization in the legal sense — every charge is a
  *     discrete one-off payment.
- *   - Wallet balance is held in Drivey's Stripe customer balance, not in a
- *     Drivey-controlled bank account, so no e-money licensing exposure.
+ *   - Wallet balance is held in Giorra's Stripe customer balance, not in a
+ *     Giorra-controlled bank account, so no e-money licensing exposure.
  *   - Receivables risk is zero — drivers prepay.
  */
 
@@ -41,7 +41,7 @@ export const AUTO_TOPUP_THRESHOLD_EUR = 0.2;
 
 /**
  * Inactivity period after which wallet credit expires and the residual
- * balance reverts to Drivey. EU prepaid-services rules allow this as long
+ * balance reverts to Giorra. EU prepaid-services rules allow this as long
  * as the term is reasonable (24 months is standard for SaaS credit) and
  * disclosed up-front at top-up time. Drivers can request a refund of
  * unused cash before expiry — see `quoteWalletRefund` below.
@@ -111,7 +111,7 @@ export interface RefundQuote {
  * administrative overhead. Both are disclosed at top-up time.
  *
  * If the admin fee would push the refund below zero, the net refund is
- * floored at zero and the residual stays in Drivey's account.
+ * floored at zero and the residual stays in Giorra's account.
  */
 export function quoteWalletRefund(args: {
   cash_topped_up_eur: number;
@@ -169,10 +169,10 @@ function stripeCardFeeEur(amount_eur: number) {
 /**
  * Bonus credit added to larger top-up packs.
  *
- * Designed so a single bigger top-up costs Drivey exactly the same as the
- * equivalent number of €5 top-ups would: every cent Drivey saves on Stripe
+ * Designed so a single bigger top-up costs Giorra exactly the same as the
+ * equivalent number of €5 top-ups would: every cent Giorra saves on Stripe
  * fees by consolidating into one transaction is given back to the driver
- * as wallet credit. Cost-neutral for Drivey, psychologically positive for
+ * as wallet credit. Cost-neutral for Giorra, psychologically positive for
  * the driver ("loyalty perk").
  */
 export function topUpBonusFor(amount_eur: TopUpAmount): number {

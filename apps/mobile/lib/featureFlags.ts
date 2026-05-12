@@ -22,7 +22,7 @@ function envStr(name: string): string | undefined {
 }
 
 /**
- * Money-flow mode. Default is the lowest-liability mode (notice board): Drivey
+ * Money-flow mode. Default is the lowest-liability mode (notice board): Giorra
  * never touches money, riders pay drivers directly out-of-band. Override with
  * EXPO_PUBLIC_MONEY_FLOW=stripe_escrow_no_fee or stripe_escrow_with_fee once
  * the platform is established and a Stripe Connect platform is registered.
@@ -57,6 +57,6 @@ export function shouldUseMocks(): boolean {
   return flags.useMocks || !flags.supabaseConfigured;
 }
 
-export function moneyTouchesDrivey(): boolean {
+export function moneyTouchesGiorra(): boolean {
   return flags.moneyFlow !== 'notice_board';
 }
