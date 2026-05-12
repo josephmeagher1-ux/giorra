@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - name: Typecheck shared package
+        run: npm run typecheck --workspace @drivey/shared
+      - name: Test shared package
+        run: npm run test --workspace @drivey/shared

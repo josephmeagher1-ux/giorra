@@ -1,0 +1,64 @@
+name: Deploy mock app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow only one concurrent deployment.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install workspace dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Export Expo app for the web
+        run: npm run export:web --workspace mobile
+        env:
+          EXPO_PUBLIC_USE_MOCKS: 'true'
+
+      # Belt and suspenders — actions/deploy-pages doesn't run Jekyll, but
+      # _expo/ directories start with an underscore which would historically
+      # have been skipped.
+      - name: Disable Jekyll processing
+        run: touch apps/mobile/dist/.nojekyll
+
+      # GitHub Pages returns a 404 for unknown paths instead of falling back
+      # to index.html, which would break deep links like /drivey/profile in
+      # the SPA. Serving the same shell as 404.html lets the client router
+      # take over.
+      - name: Add SPA 404 fallback
+        run: cp apps/mobile/dist/index.html apps/mobile/dist/404.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/mobile/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

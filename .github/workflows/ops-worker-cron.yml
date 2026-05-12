@@ -1,0 +1,22 @@
+name: ops-worker (cron)
+
+# Runs the ops-worker once on schedule using GitHub Actions free minutes
+# (effectively unlimited via the GitHub Student Developer Pack). Use this
+# in place of, or alongside, a long-lived host while in dev/preview.
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # 04:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: OPS_RUN_ONCE=true npm run start --workspace @drivey/ops-worker

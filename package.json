@@ -1,0 +1,26 @@
+{
+  "name": "drivey",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:migrate": "cd supabase && supabase db push",
+    "db:reset": "cd supabase && supabase db reset",
+    "db:types": "supabase gen types typescript --local > packages/shared/src/types/database.ts",
+    "functions:serve": "cd supabase && supabase functions serve",
+    "functions:deploy": "cd supabase && supabase functions deploy"
+  },
+  "devDependencies": {
+    "turbo": "^2.9.0",
+    "typescript": "^5.7.0"
+  }
+}

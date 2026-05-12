@@ -1,0 +1,34 @@
+node_modules/
+dist/
+.turbo/
+.expo/
+ios/
+android/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Supabase
+supabase/.temp/
+
+# IDE / tooling
+.vscode/
+.idea/
+.claude/
+.cursor/
+*.swp
+*.swo
+.DS_Store
+
+# Build
+*.tsbuildinfo
+
+# EAS
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*

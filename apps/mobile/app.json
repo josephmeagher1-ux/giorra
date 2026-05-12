@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Drivey",
+    "slug": "drivey",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "drivey",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f6e4e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ie.drivey.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f6e4e"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "ie.drivey.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false,
+      "baseUrl": "/drivey"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
