@@ -1,12 +1,15 @@
 import React from 'react';
+import { View, Text } from 'react-native';
 import { Redirect, Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
+import { useNotificationStore } from '@/stores/notificationStore';
 import { theme } from '@/lib/theme';
 import { BrandHeader } from '@/components/BrandHeader';
 
 export default function TabsLayout() {
   const signedIn = useAuthStore((s) => s.signedIn);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
   if (!signedIn) return <Redirect href="/sign-in" />;
 
   return (
@@ -50,7 +53,29 @@ export default function TabsLayout() {
         name="my-trips"
         options={{
           title: 'Trips',
-          tabBarIcon: ({ color, size }) => <Feather name="navigation" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <View>
+              <Feather name="navigation" size={size} color={color} />
+              {unreadCount > 0 && (
+                <View style={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -8,
+                  backgroundColor: theme.colors.warn,
+                  borderRadius: 8,
+                  minWidth: 16,
+                  height: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 3,
+                }}>
+                  <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen

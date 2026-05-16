@@ -150,14 +150,36 @@ export async function addVehicle(input: Omit<MockVehicle, 'id' | 'owner_id' | 'i
 export async function searchTrips(opts: {
   origin_text?: string;
   destination_text?: string;
+  date_filter?: 'any' | 'today' | 'tomorrow' | 'this_week';
 }): Promise<Array<MockTrip & { driver: MockProfile; vehicle: MockVehicle }>> {
   await sleep(180);
   const o = (opts.origin_text ?? '').toLowerCase().trim();
   const d = (opts.destination_text ?? '').toLowerCase().trim();
+
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+  const endOfTomorrow = new Date(startOfTomorrow);
+  endOfTomorrow.setDate(endOfTomorrow.getDate() + 1);
+  const endOfWeek = new Date(startOfToday);
+  endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()));
+
   return trips
     .filter((t) => t.status === 'published')
     .filter((t) => (!o || t.origin.name.toLowerCase().includes(o)))
     .filter((t) => (!d || t.destination.name.toLowerCase().includes(d)))
+    .filter((t) => {
+      if (!opts.date_filter || opts.date_filter === 'any') return true;
+      const dep = new Date(t.departure_time);
+      switch (opts.date_filter) {
+        case 'today': return dep >= startOfToday && dep < startOfTomorrow;
+        case 'tomorrow': return dep >= startOfTomorrow && dep < endOfTomorrow;
+        case 'this_week': return dep >= startOfToday && dep < endOfWeek;
+        default: return true;
+      }
+    })
+    .sort((a, b) => new Date(a.departure_time).getTime() - new Date(b.departure_time).getTime())
     .map((t) => ({
       ...t,
       driver: findDriver(t.driver_id),
@@ -302,6 +324,38 @@ export function ratingForUser(userId: string, role: 'driver' | 'rider') {
 export async function listMyTripsAsDriver(): Promise<MockTrip[]> {
   await sleep(120);
   return trips.filter((t) => t.driver_id === SELF.id);
+}
+
+export async function updateTripStatus(
+  tripId: string,
+  status: 'in_progress' | 'completed' | 'cancelled',
+): Promise<MockTrip> {
+  await sleep(150);
+  const t = trips.find((x) => x.id === tripId);
+  if (!t) throw new Error('Trip not found');
+  if (t.driver_id !== SELF.id) throw new Error('Only the driver can update trip status');
+  trips = trips.map((x) => (x.id === tripId ? { ...x, status } : x));
+  if (status === 'completed') {
+    notify({
+      type: 'trip_completed',
+      title: 'Trip completed',
+      body: `Your trip from ${t.origin.name} to ${t.destination.name} has been marked complete.`,
+      data: { trip_id: tripId },
+    });
+  }
+  if (status === 'cancelled' && t.booked_seats > 0) {
+    notify({
+      type: 'trip_departure_reminder',
+      title: 'Trip cancelled',
+      body: `The driver has cancelled the trip from ${t.origin.name} to ${t.destination.name}. Your booking will be refunded.`,
+      data: { trip_id: tripId },
+    });
+    // Auto-refund bookings
+    bookings = bookings.map((b) =>
+      b.trip_id === tripId && b.status !== 'cancelled' ? { ...b, status: 'cancelled' } : b,
+    );
+  }
+  return { ...t, status };
 }
 
 export async function listRecurringPatterns(driverId: string = SELF.id): Promise<MockRecurringPattern[]> {

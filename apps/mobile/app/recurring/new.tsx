@@ -8,21 +8,15 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Pill } from '@/components/ui/Pill';
 import { CostBreakdown } from '@/components/CostBreakdown';
+import { LocationInput } from '@/components/LocationInput';
 import {
   createRecurringPattern,
   listVehicles,
   previewTripCost,
 } from '@/lib/api';
 import { recurrencePatternSchema, type CostBreakdown as Breakdown, type DayOfWeek, type RecurrenceCategory } from '@giorra/shared';
+import { type GeocodingResult } from '@/lib/geocoding';
 import { theme } from '@/lib/theme';
-
-const LOCATIONS = {
-  Naas: { lat: 53.219, lng: -6.659, name: 'Naas town centre' },
-  Dublin: { lat: 53.349805, lng: -6.26031, name: 'Dublin city centre' },
-  Maynooth: { lat: 53.382, lng: -6.591, name: 'Maynooth' },
-  Cork: { lat: 51.898514, lng: -8.475603, name: 'Cork city centre' },
-  Bishopstown: { lat: 51.881, lng: -8.534, name: 'Bishopstown School' },
-};
 
 const CATEGORIES: RecurrenceCategory[] = ['commute', 'school', 'sports', 'event', 'other'];
 const DAYS: DayOfWeek[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -30,8 +24,8 @@ const DAYS: DayOfWeek[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 export default function NewRecurringScreen() {
   const [label, setLabel] = useState('Weekday commute');
   const [category, setCategory] = useState<RecurrenceCategory>('commute');
-  const [origin, setOrigin] = useState<keyof typeof LOCATIONS>('Naas');
-  const [destination, setDestination] = useState<keyof typeof LOCATIONS>('Dublin');
+  const [originLoc, setOriginLoc] = useState<GeocodingResult | null>(null);
+  const [destLoc, setDestLoc] = useState<GeocodingResult | null>(null);
   const [days, setDays] = useState<DayOfWeek[]>(['mon', 'tue', 'wed', 'thu', 'fri']);
   const [time, setTime] = useState('07:15');
   const [termOnly, setTermOnly] = useState(false);
@@ -58,10 +52,10 @@ export default function NewRecurringScreen() {
     setDays((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
 
   const runPreview = async () => {
-    if (!selectedVehicle) return;
+    if (!selectedVehicle || !originLoc || !destLoc) return;
     const r = await previewTripCost({
-      origin: LOCATIONS[origin],
-      destination: LOCATIONS[destination],
+      origin: { lat: originLoc.lat, lng: originLoc.lng, name: originLoc.name },
+      destination: { lat: destLoc.lat, lng: destLoc.lng, name: destLoc.name },
       vehicle: selectedVehicle,
       num_passengers: Math.max(1, parseInt(seats, 10) || 1),
     });
@@ -69,7 +63,7 @@ export default function NewRecurringScreen() {
   };
 
   const onSave = async () => {
-    if (!selectedVehicle) return;
+    if (!selectedVehicle || !originLoc || !destLoc) return;
     const pattern = {
       label,
       category,
@@ -87,8 +81,8 @@ export default function NewRecurringScreen() {
     await createRecurringPattern({
       label,
       category,
-      origin: LOCATIONS[origin],
-      destination: LOCATIONS[destination],
+      origin: { lat: originLoc.lat, lng: originLoc.lng, name: originLoc.name },
+      destination: { lat: destLoc.lat, lng: destLoc.lng, name: destLoc.name },
       vehicle_id: selectedVehicle.id,
       pattern: parsed.data,
       available_seats: Math.max(1, parseInt(seats, 10) || 1),
@@ -118,18 +112,22 @@ export default function NewRecurringScreen() {
 
       <Card style={{ gap: theme.spacing(1) }}>
         <Heading level="md">Route</Heading>
-        <Caption>From</Caption>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {(Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>).map((k) => (
-            <Pill key={`o-${k}`} label={k} selected={origin === k} onPress={() => setOrigin(k)} />
-          ))}
-        </View>
-        <Caption>To</Caption>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {(Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>).map((k) => (
-            <Pill key={`d-${k}`} label={k} selected={destination === k} onPress={() => setDestination(k)} />
-          ))}
-        </View>
+        <LocationInput
+          label="From"
+          value={originLoc}
+          onSelect={setOriginLoc}
+          placeholder="e.g. Naas, Maynooth"
+          icon="circle"
+          iconColor={theme.colors.accent}
+        />
+        <LocationInput
+          label="To"
+          value={destLoc}
+          onSelect={setDestLoc}
+          placeholder="e.g. Dublin city centre"
+          icon="map-pin"
+          iconColor={theme.colors.warn}
+        />
       </Card>
 
       <Card style={{ gap: theme.spacing(1) }}>

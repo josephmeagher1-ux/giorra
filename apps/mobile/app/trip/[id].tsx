@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CostBreakdown } from '@/components/CostBreakdown';
 import { MapPreview } from '@/components/MapPreview';
-import { bookSeat, getTrip, getOrgIncentivesForTrip, previewTripCost } from '@/lib/api';
+import { bookSeat, getTrip, getOrgIncentivesForTrip, previewTripCost, updateTripStatus } from '@/lib/api';
 import { openInExternalMap } from '@/lib/navHandoff';
 import { checkBookingArrangement, type CostBreakdown as Breakdown } from '@giorra/shared';
 import { theme } from '@/lib/theme';
@@ -35,6 +35,8 @@ export default function TripDetailScreen() {
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
   const [incentives, setIncentives] = useState<Awaited<ReturnType<typeof getOrgIncentivesForTrip>>>([]);
   const [booking, setBooking] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [seatsToBook, setSeatsToBook] = useState(1);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   useEffect(() => {
@@ -85,7 +87,7 @@ export default function TripDetailScreen() {
     }
     setBooking(true);
     try {
-      const b = await bookSeat({ trip_id: trip.id, seats: 1 });
+      const b = await bookSeat({ trip_id: trip.id, seats: seatsToBook });
       router.replace({ pathname: '/booking/[id]', params: { id: b.escrow_id } });
     } catch (e: any) {
       Alert.alert('Booking failed', e?.message ?? 'Unknown error');
@@ -221,16 +223,110 @@ export default function TripDetailScreen() {
       </View>
 
       {!isOwnTrip ? (
-        <Button
-          title={seatsLeft === 0 ? 'Sold out' : `Book seat · €${trip.actual_price_per_seat.toFixed(2)}`}
-          full
-          disabled={seatsLeft === 0}
-          loading={booking}
-          onPress={onBook}
-        />
+        <Card style={{ gap: theme.spacing(2) }}>
+          {seatsLeft > 1 && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Caption>Seats</Caption>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Pressable
+                  onPress={() => setSeatsToBook(Math.max(1, seatsToBook - 1))}
+                  style={styles.seatBtn}
+                  hitSlop={8}
+                >
+                  <Feather name="minus" size={14} color={theme.colors.text} />
+                </Pressable>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: theme.colors.text, minWidth: 20, textAlign: 'center' }}>
+                  {seatsToBook}
+                </Text>
+                <Pressable
+                  onPress={() => setSeatsToBook(Math.min(seatsLeft, seatsToBook + 1))}
+                  style={styles.seatBtn}
+                  hitSlop={8}
+                >
+                  <Feather name="plus" size={14} color={theme.colors.text} />
+                </Pressable>
+              </View>
+            </View>
+          )}
+          <Button
+            title={seatsLeft === 0 ? 'Sold out' : `Book ${seatsToBook} seat${seatsToBook > 1 ? 's' : ''} · €${(trip.actual_price_per_seat * seatsToBook).toFixed(2)}`}
+            full
+            disabled={seatsLeft === 0}
+            loading={booking}
+            onPress={onBook}
+          />
+        </Card>
       ) : (
-        <Card>
-          <Caption>You’re the driver on this trip.</Caption>
+        <Card style={{ gap: theme.spacing(2) }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Feather name="shield" size={16} color={theme.colors.accent} />
+            <Text style={{ fontSize: 14, fontWeight: '700', color: theme.colors.text }}>
+              Driver controls
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{
+              width: 8, height: 8, borderRadius: 4,
+              backgroundColor: trip.status === 'published' ? theme.colors.accent
+                : trip.status === 'in_progress' ? theme.colors.warn
+                : theme.colors.textMuted,
+            }} />
+            <Caption>
+              Status: <Text style={{ fontWeight: '600' }}>{trip.status.replace('_', ' ')}</Text>
+            </Caption>
+          </View>
+          {trip.status === 'published' && (
+            <Button
+              title="Start trip"
+              variant="secondary"
+              full
+              loading={updatingStatus}
+              onPress={async () => {
+                setUpdatingStatus(true);
+                const updated = await updateTripStatus(trip.id, 'in_progress');
+                setTrip((prev) => prev ? { ...prev, status: updated.status } : prev);
+                setUpdatingStatus(false);
+              }}
+            />
+          )}
+          {trip.status === 'in_progress' && (
+            <Button
+              title="Mark complete"
+              full
+              loading={updatingStatus}
+              onPress={async () => {
+                setUpdatingStatus(true);
+                const updated = await updateTripStatus(trip.id, 'completed');
+                setTrip((prev) => prev ? { ...prev, status: updated.status } : prev);
+                setUpdatingStatus(false);
+              }}
+            />
+          )}
+          {trip.status === 'completed' && (
+            <Caption muted>This trip has been completed. Escrow settlement will process automatically.</Caption>
+          )}
+          {trip.status === 'published' && (
+            <Button
+              title="Cancel trip"
+              variant="secondary"
+              full
+              onPress={() => {
+                Alert.alert('Cancel trip?', 'Riders will be refunded automatically.', [
+                  { text: 'Keep trip', style: 'cancel' },
+                  {
+                    text: 'Cancel',
+                    style: 'destructive',
+                    onPress: async () => {
+                      setUpdatingStatus(true);
+                      const updated = await updateTripStatus(trip.id, 'cancelled');
+                      setTrip((prev) => prev ? { ...prev, status: updated.status } : prev);
+                      setUpdatingStatus(false);
+                    },
+                  },
+                ]);
+              }}
+            />
+          )}
         </Card>
       )}
     </Screen>
@@ -330,4 +426,14 @@ const styles = {
     backgroundColor: theme.colors.surface,
   },
   navButtonText: { fontSize: 12, fontWeight: '600' as const, color: theme.colors.text },
+  seatBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
 };

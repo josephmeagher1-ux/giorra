@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, FlatList, Pressable, Platform } from 'react-native';
+import { View, Text, FlatList, Pressable, Platform } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
-import { Body, Caption } from '@/components/ui/Heading';
+import { Caption } from '@/components/ui/Heading';
 import { Button } from '@/components/ui/Button';
+import { Pill } from '@/components/ui/Pill';
 import { TripCard } from '@/components/TripCard';
+import { LocationInput } from '@/components/LocationInput';
 import { searchTrips, listPublicRecurringPatterns } from '@/lib/api';
+import { type GeocodingResult } from '@/lib/geocoding';
 import { theme } from '@/lib/theme';
 
 type SearchHit = Awaited<ReturnType<typeof searchTrips>>[number];
 type Recurring = Awaited<ReturnType<typeof listPublicRecurringPatterns>>[number];
 
+type DateFilter = 'any' | 'today' | 'tomorrow' | 'this_week';
+
 export default function SearchScreen() {
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
+  const [originLoc, setOriginLoc] = useState<GeocodingResult | null>(null);
+  const [destLoc, setDestLoc] = useState<GeocodingResult | null>(null);
+  const [dateFilter, setDateFilter] = useState<DateFilter>('any');
   const [loading, setLoading] = useState(false);
   const [trips, setTrips] = useState<SearchHit[]>([]);
   const [recurring, setRecurring] = useState<Recurring[]>([]);
@@ -22,7 +28,11 @@ export default function SearchScreen() {
   const run = async () => {
     setLoading(true);
     const [t, r] = await Promise.all([
-      searchTrips({ origin_text: origin, destination_text: destination }),
+      searchTrips({
+        origin_text: originLoc?.name ?? '',
+        destination_text: destLoc?.name ?? '',
+        date_filter: dateFilter,
+      }),
       listPublicRecurringPatterns(),
     ]);
     setTrips(t);
@@ -35,44 +45,49 @@ export default function SearchScreen() {
   }, []);
 
   const swap = () => {
-    setOrigin(destination);
-    setDestination(origin);
+    const tmp = originLoc;
+    setOriginLoc(destLoc);
+    setDestLoc(tmp);
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll onRefresh={run} refreshing={loading}>
       <View style={{ gap: 4 }}>
         <Text style={s.h1}>Where are you going?</Text>
         <Text style={s.h1Sub}>Find a ride from a driver heading the same way.</Text>
       </View>
 
       <View style={s.searchCard}>
-        <View style={s.searchRow}>
-          <Feather name="circle" size={14} color={theme.colors.accent} />
-          <SearchField
-            placeholder="Pick up from"
-            value={origin}
-            onChangeText={setOrigin}
-            autoFocus={false}
-          />
-        </View>
+        <LocationInput
+          label="Pick up from"
+          value={originLoc}
+          onSelect={setOriginLoc}
+          placeholder="e.g. Naas"
+          icon="circle"
+          iconColor={theme.colors.accent}
+        />
         <View style={s.searchDivider}>
           <View style={s.searchDividerLine} />
           <Pressable onPress={swap} style={s.swapButton} hitSlop={10}>
             <Feather name="repeat" size={14} color={theme.colors.text} />
           </Pressable>
         </View>
-        <View style={s.searchRow}>
-          <Feather name="map-pin" size={14} color={theme.colors.warn} />
-          <SearchField
-            placeholder="Drop off at"
-            value={destination}
-            onChangeText={setDestination}
-          />
-        </View>
+        <LocationInput
+          label="Drop off at"
+          value={destLoc}
+          onSelect={setDestLoc}
+          placeholder="e.g. Dublin city"
+          icon="map-pin"
+          iconColor={theme.colors.warn}
+        />
         <View style={s.searchRow}>
           <Feather name="calendar" size={14} color={theme.colors.textMuted} />
-          <Text style={s.fieldDisabled}>Any time in the next 7 days</Text>
+          <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            <Pill label="Any time" selected={dateFilter === 'any'} onPress={() => setDateFilter('any')} />
+            <Pill label="Today" selected={dateFilter === 'today'} onPress={() => setDateFilter('today')} />
+            <Pill label="Tomorrow" selected={dateFilter === 'tomorrow'} onPress={() => setDateFilter('tomorrow')} />
+            <Pill label="This week" selected={dateFilter === 'this_week'} onPress={() => setDateFilter('this_week')} />
+          </View>
         </View>
         <Button title={loading ? 'Searching…' : 'Search rides'} loading={loading} onPress={run} full />
       </View>
@@ -146,33 +161,6 @@ export default function SearchScreen() {
   );
 }
 
-function SearchField({
-  placeholder,
-  value,
-  onChangeText,
-  autoFocus,
-}: {
-  placeholder: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  autoFocus?: boolean;
-}) {
-  return (
-    <View style={{ flex: 1 }}>
-      <Text style={s.fieldLabel}>{placeholder}</Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder === 'Pick up from' ? 'e.g. Naas' : 'e.g. Dublin city'}
-        autoFocus={autoFocus}
-        placeholderTextColor={theme.colors.textSubtle}
-        style={s.fieldInput}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-    </View>
-  );
-}
 
 const s = {
   h1: { fontSize: 26, fontWeight: '800' as const, color: theme.colors.text, letterSpacing: -0.5 },
@@ -201,15 +189,6 @@ const s = {
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
   },
-  fieldLabel: { fontSize: 10, color: theme.colors.textMuted, textTransform: 'uppercase' as const, letterSpacing: 0.6, fontWeight: '600' as const },
-  fieldInput: {
-    fontSize: 16,
-    color: theme.colors.text,
-    paddingVertical: 2,
-    paddingHorizontal: 0,
-    ...((Platform.OS === 'web' ? { outlineStyle: 'none', outlineWidth: 0 } : {}) as object),
-  } as any,
-  fieldDisabled: { fontSize: 13, color: theme.colors.textMuted },
   sectionHeader: { gap: 2 },
   sectionTitle: { fontSize: 18, fontWeight: '700' as const, color: theme.colors.text, letterSpacing: -0.2 },
   sectionSub: { fontSize: 12, color: theme.colors.textMuted },

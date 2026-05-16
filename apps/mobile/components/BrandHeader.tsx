@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNotificationStore } from '@/stores/notificationStore';
 import { theme } from '@/lib/theme';
 
 /**
@@ -10,6 +11,7 @@ import { theme } from '@/lib/theme';
  * consistently visible while leaving room for a settings affordance.
  */
 export function BrandHeader() {
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.bg }}>
       <View
@@ -41,13 +43,40 @@ export function BrandHeader() {
             Giorra
           </Text>
         </View>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          hitSlop={10}
-          style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-        >
-          <Feather name="settings" size={20} color={theme.colors.textMuted} />
-        </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Pressable
+            onPress={() => router.push('/notifications')}
+            hitSlop={10}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
+            <Feather name="bell" size={20} color={theme.colors.textMuted} />
+            {unreadCount > 0 && (
+              <View style={{
+                position: 'absolute',
+                top: -4,
+                right: -6,
+                backgroundColor: theme.colors.warn,
+                borderRadius: 7,
+                minWidth: 14,
+                height: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 2,
+              }}>
+                <Text style={{ color: '#fff', fontSize: 8, fontWeight: '700' }}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/settings')}
+            hitSlop={10}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
+            <Feather name="settings" size={20} color={theme.colors.textMuted} />
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );

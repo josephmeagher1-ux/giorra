@@ -37,6 +37,7 @@ export default function RootLayout() {
         <Stack.Screen name="chat/[tripId]" options={{ headerShown: true, title: 'Messages' }} />
         <Stack.Screen name="driver/[id]" options={{ headerShown: true, title: 'Driver' }} />
         <Stack.Screen name="profile/edit" options={{ headerShown: true, title: 'Edit profile' }} />
+        <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
       </Stack>
     </SafeAreaProvider>
   );

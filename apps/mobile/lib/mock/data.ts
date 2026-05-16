@@ -147,6 +147,14 @@ export const VEHICLES: MockVehicle[] = [
   },
 ];
 
+// Dynamic departure times so date filters work relative to today
+function relativeDate(daysFromNow: number, hour: number, minute: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + daysFromNow);
+  d.setHours(hour, minute, 0, 0);
+  return d.toISOString();
+}
+
 export const TRIPS: MockTrip[] = [
   {
     id: 't1',
@@ -154,7 +162,7 @@ export const TRIPS: MockTrip[] = [
     vehicle_id: 'v2',
     origin: { lat: 53.349805, lng: -6.26031, name: 'Dublin city centre' },
     destination: { lat: 51.898514, lng: -8.475603, name: 'Cork city centre' },
-    departure_time: '2026-05-13T07:30:00Z',
+    departure_time: relativeDate(0, 15, 30), // today
     distance_km: 260,
     duration_minutes: 175,
     available_seats: 3,
@@ -170,7 +178,7 @@ export const TRIPS: MockTrip[] = [
     vehicle_id: 'v3',
     origin: { lat: 53.349805, lng: -6.26031, name: 'Dublin Heuston' },
     destination: { lat: 52.668189, lng: -8.630498, name: 'Limerick city' },
-    departure_time: '2026-05-12T17:00:00Z',
+    departure_time: relativeDate(1, 17, 0), // tomorrow
     distance_km: 198,
     duration_minutes: 135,
     available_seats: 3,
@@ -186,13 +194,45 @@ export const TRIPS: MockTrip[] = [
     vehicle_id: 'v1',
     origin: { lat: 52.665, lng: -8.623, name: 'Limerick' },
     destination: { lat: 51.898514, lng: -8.475603, name: 'Cork' },
-    departure_time: '2026-05-14T18:15:00Z',
+    departure_time: relativeDate(3, 18, 15), // later this week
     distance_km: 105,
     duration_minutes: 90,
     available_seats: 2,
     booked_seats: 2,
     max_price_per_seat: 8.2,
     actual_price_per_seat: 7.5,
+    cost_breakdown: null,
+    status: 'published',
+  },
+  {
+    id: 't4',
+    driver_id: 'd1',
+    vehicle_id: 'v2',
+    origin: { lat: 53.219, lng: -6.659, name: 'Naas' },
+    destination: { lat: 53.349805, lng: -6.26031, name: 'Dublin city centre' },
+    departure_time: relativeDate(0, 7, 45), // today morning
+    distance_km: 34,
+    duration_minutes: 35,
+    available_seats: 3,
+    booked_seats: 0,
+    max_price_per_seat: 4.2,
+    actual_price_per_seat: 3.5,
+    cost_breakdown: null,
+    status: 'published',
+  },
+  {
+    id: 't5',
+    driver_id: 'd3',
+    vehicle_id: 'v1',
+    origin: { lat: 53.383, lng: -6.594, name: 'Maynooth' },
+    destination: { lat: 53.349805, lng: -6.26031, name: 'Dublin city centre' },
+    departure_time: relativeDate(1, 8, 0), // tomorrow morning
+    distance_km: 26,
+    duration_minutes: 30,
+    available_seats: 2,
+    booked_seats: 1,
+    max_price_per_seat: 3.6,
+    actual_price_per_seat: 3.0,
     cost_breakdown: null,
     status: 'published',
   },

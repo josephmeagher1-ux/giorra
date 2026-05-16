@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import type { Message } from '@giorra/shared';
 import { Screen } from '@/components/ui/Screen';
 import { Caption } from '@/components/ui/Heading';
@@ -62,7 +63,11 @@ export default function ChatScreen() {
       <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
         {messages.length === 0 ? (
           <View style={styles.empty}>
-            <Caption>No messages yet. Say hello!</Caption>
+            <Feather name="message-circle" size={32} color={theme.colors.textMuted} />
+            <Text style={{ fontSize: 15, fontWeight: '700', color: theme.colors.text, marginTop: 8 }}>
+              Start the conversation
+            </Text>
+            <Caption>Coordinate pickup details, share arrival times, or just say hi.</Caption>
           </View>
         ) : (
           <FlatList

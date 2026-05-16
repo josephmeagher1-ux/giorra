@@ -8,25 +8,20 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Pill } from '@/components/ui/Pill';
 import { CostBreakdown } from '@/components/CostBreakdown';
+import { LocationInput } from '@/components/LocationInput';
 import { Feather } from '@expo/vector-icons';
 import { createTrip, getDeclarationsAcceptance, getOrgIncentivesForTrip, listVehicles, previewTripCost } from '@/lib/api';
 import { listVerifications } from '@/lib/identity';
 import { canPerformAction, type CostBreakdown as Breakdown } from '@giorra/shared';
+import { type GeocodingResult } from '@/lib/geocoding';
 import { theme } from '@/lib/theme';
 
-const DEFAULT_LOCATIONS = {
-  Dublin: { lat: 53.349805, lng: -6.26031, name: 'Dublin city centre' },
-  Cork: { lat: 51.898514, lng: -8.475603, name: 'Cork city centre' },
-  Galway: { lat: 53.270668, lng: -9.056791, name: 'Galway city' },
-  Limerick: { lat: 52.668189, lng: -8.630498, name: 'Limerick city' },
-  Belfast: { lat: 54.597, lng: -5.93, name: 'Belfast city' },
-};
-
-type LocKey = keyof typeof DEFAULT_LOCATIONS;
+type TripCategory = 'commute' | 'school' | 'any';
 
 export default function PostTripScreen() {
-  const [origin, setOrigin] = useState<LocKey>('Dublin');
-  const [destination, setDestination] = useState<LocKey>('Cork');
+  const [originLoc, setOriginLoc] = useState<GeocodingResult | null>(null);
+  const [destLoc, setDestLoc] = useState<GeocodingResult | null>(null);
+  const [category, setCategory] = useState<TripCategory>('commute');
   const [seats, setSeats] = useState('3');
   const [departure, setDeparture] = useState(() => {
     const d = new Date();
@@ -55,17 +50,17 @@ export default function PostTripScreen() {
   );
 
   const runPreview = async () => {
-    if (!selectedVehicle) return;
+    if (!selectedVehicle || !originLoc || !destLoc) return;
     setLoadingPreview(true);
     const r = await previewTripCost({
-      origin: DEFAULT_LOCATIONS[origin],
-      destination: DEFAULT_LOCATIONS[destination],
+      origin: { lat: originLoc.lat, lng: originLoc.lng, name: originLoc.name },
+      destination: { lat: destLoc.lat, lng: destLoc.lng, name: destLoc.name },
       vehicle: selectedVehicle,
       num_passengers: Math.max(1, parseInt(seats, 10) || 1),
     });
     setPreview({ distance_km: r.distance_km, duration_minutes: r.duration_minutes, cost: r.cost_breakdown });
     setLoadingPreview(false);
-    getOrgIncentivesForTrip('commute', r.distance_km, r.cost_breakdown.max_price_per_seat).then(setPostIncentives);
+    getOrgIncentivesForTrip(category, r.distance_km, r.cost_breakdown.max_price_per_seat).then(setPostIncentives);
   };
 
   const onPublish = async () => {
@@ -93,15 +88,15 @@ export default function PostTripScreen() {
       );
       return;
     }
-    if (!selectedVehicle || !preview) return;
+    if (!selectedVehicle || !preview || !originLoc || !destLoc) return;
     setSaving(true);
     try {
       const maxPrice = preview.cost.max_price_per_seat;
       const requested = parseFloat(actualPriceText.replace(',', '.'));
       const finalActual = isFinite(requested) ? Math.min(requested, maxPrice) : maxPrice;
       const t = await createTrip({
-        origin: DEFAULT_LOCATIONS[origin],
-        destination: DEFAULT_LOCATIONS[destination],
+        origin: { lat: originLoc.lat, lng: originLoc.lng, name: originLoc.name },
+        destination: { lat: destLoc.lat, lng: destLoc.lng, name: destLoc.name },
         vehicle_id: selectedVehicle.id,
         departure_time: new Date(departure).toISOString(),
         available_seats: Math.max(1, parseInt(seats, 10) || 1),
@@ -120,21 +115,34 @@ export default function PostTripScreen() {
 
       <Card style={{ gap: theme.spacing(2) }}>
         <Heading level="md">Route</Heading>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {(Object.keys(DEFAULT_LOCATIONS) as LocKey[]).map((k) => (
-            <Pill key={`o-${k}`} label={`From: ${k}`} selected={origin === k} onPress={() => setOrigin(k)} />
-          ))}
-        </View>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {(Object.keys(DEFAULT_LOCATIONS) as LocKey[]).map((k) => (
-            <Pill key={`d-${k}`} label={`To: ${k}`} selected={destination === k} onPress={() => setDestination(k)} />
-          ))}
-        </View>
-        <Caption>(Mock geocoding. Wire Mapbox later to type real addresses.)</Caption>
+        <LocationInput
+          label="From"
+          value={originLoc}
+          onSelect={setOriginLoc}
+          placeholder="e.g. Naas, Maynooth"
+          icon="circle"
+          iconColor={theme.colors.accent}
+        />
+        <LocationInput
+          label="To"
+          value={destLoc}
+          onSelect={setDestLoc}
+          placeholder="e.g. Dublin city centre"
+          icon="map-pin"
+          iconColor={theme.colors.warn}
+        />
+        <Caption>Start typing to search Irish locations.</Caption>
       </Card>
 
       <Card style={{ gap: theme.spacing(2) }}>
         <Heading level="md">Details</Heading>
+        <Heading level="sm">Trip category</Heading>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          <Pill label="Commute" selected={category === 'commute'} onPress={() => setCategory('commute')} />
+          <Pill label="School run" selected={category === 'school'} onPress={() => setCategory('school')} />
+          <Pill label="Other" selected={category === 'any'} onPress={() => setCategory('any')} />
+        </View>
+        <Caption>Category determines which org incentives riders can claim.</Caption>
         <Input
           label="Departure (local)"
           value={departure}

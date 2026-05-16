@@ -7,6 +7,7 @@ import { Heading, Body, Caption } from '@/components/ui/Heading';
 import { Card } from '@/components/ui/Card';
 import { Pill } from '@/components/ui/Pill';
 import { listMyBookings, listMyTripsAsDriver, listMyDriverBookings } from '@/lib/api';
+import { checkDepartureReminders } from '@/lib/notifications';
 import { theme } from '@/lib/theme';
 
 export default function MyTripsScreen() {
@@ -23,6 +24,7 @@ export default function MyTripsScreen() {
     setAsDriver(d);
     setAsRider(r);
     setDriverRequests(dr);
+    checkDepartureReminders(d);
   };
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function MyTripsScreen() {
   }, []);
 
   return (
-    <Screen scroll>
+    <Screen scroll onRefresh={refresh}>
       <Heading level="xl">My trips</Heading>
 
       <View style={{ gap: 6 }}>
@@ -46,10 +48,18 @@ export default function MyTripsScreen() {
                     {t.origin.name} → {t.destination.name}
                   </Heading>
                   <Caption>{new Date(t.departure_time).toLocaleString('en-IE')}</Caption>
-                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                  <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                     <Pill label={`€${t.actual_price_per_seat.toFixed(2)}/seat`} variant="accent" />
                     <Pill label={`${t.available_seats - t.booked_seats} seats left`} />
-                    <Pill label={t.status} variant={t.status === 'published' ? 'info' : 'warn'} />
+                    <Pill
+                      label={t.status.replace('_', ' ')}
+                      variant={
+                        t.status === 'published' ? 'info'
+                          : t.status === 'in_progress' ? 'warn'
+                          : t.status === 'completed' ? 'accent'
+                          : 'warn'
+                      }
+                    />
                   </View>
                 </Card>
               </Pressable>
