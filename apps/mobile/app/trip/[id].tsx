@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CostBreakdown } from '@/components/CostBreakdown';
 import { MapPreview } from '@/components/MapPreview';
-import { bookSeat, getTrip, previewTripCost } from '@/lib/api';
+import { bookSeat, getTrip, getOrgIncentivesForTrip, previewTripCost } from '@/lib/api';
 import { openInExternalMap } from '@/lib/navHandoff';
 import { checkBookingArrangement, type CostBreakdown as Breakdown } from '@giorra/shared';
 import { theme } from '@/lib/theme';
@@ -33,6 +33,7 @@ export default function TripDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [trip, setTrip] = useState<Awaited<ReturnType<typeof getTrip>> | null>(null);
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
+  const [incentives, setIncentives] = useState<Awaited<ReturnType<typeof getOrgIncentivesForTrip>>>([]);
   const [booking, setBooking] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
@@ -53,6 +54,8 @@ export default function TripDetailScreen() {
         });
         if (!cancelled) setBreakdown(preview.cost_breakdown);
       }
+      getOrgIncentivesForTrip('commute', t.distance_km, t.actual_price_per_seat)
+        .then((inc) => { if (!cancelled) setIncentives(inc); });
     })();
     return () => {
       cancelled = true;
@@ -93,7 +96,7 @@ export default function TripDetailScreen() {
 
   return (
     <Screen scroll>
-      <MapPreview origin={trip.origin} destination={trip.destination} height={220} />
+      <MapPreview origin={trip.origin} destination={trip.destination} routeGeometry={trip.routeGeometry} height={220} />
 
       <View style={{ gap: 4 }}>
         <Text style={styles.h1}>
@@ -113,20 +116,25 @@ export default function TripDetailScreen() {
 
       <Card style={{ gap: theme.spacing(3) }}>
         <View style={styles.driverRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials(trip.driver.full_name)}</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.driverName}>{trip.driver.full_name}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Feather name="star" size={12} color={theme.colors.accent} />
-              <Caption>
-                {trip.driver.rating.toFixed(2)} · {trip.driver.trips_completed} trips
-              </Caption>
-            </View>
-          </View>
           <Pressable
-            onPress={() => Alert.alert('Driver', `Contact options would open here in production.`)}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}
+            onPress={() => router.push({ pathname: '/driver/[id]', params: { id: trip.driver_id } })}
+          >
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials(trip.driver.full_name)}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.driverName}>{trip.driver.full_name}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Feather name="star" size={12} color={theme.colors.accent} />
+                <Caption>
+                  {trip.driver.rating.toFixed(2)} · {trip.driver.trips_completed} trips
+                </Caption>
+              </View>
+            </View>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push({ pathname: '/chat/[tripId]', params: { tripId: trip.id } })}
             style={styles.iconButton}
             hitSlop={10}
           >
@@ -166,6 +174,30 @@ export default function TripDetailScreen() {
       </View>
 
       {showBreakdown && breakdown ? <CostBreakdown breakdown={breakdown} /> : null}
+
+      {incentives.length > 0 && (
+        <View style={styles.incentiveCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Feather name="gift" size={16} color={theme.colors.accentDark} />
+            <Text style={{ fontWeight: '700', color: theme.colors.accentDark, fontSize: 14 }}>
+              Organisation savings
+            </Text>
+          </View>
+          {incentives.map((inc) => (
+            <View key={inc.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: theme.colors.accentDark }}>{inc.label}</Text>
+                <Caption style={{ color: theme.colors.accentDark }}>{inc.org_name}</Caption>
+              </View>
+              {inc.estimated_amount > 0 && (
+                <Text style={{ fontSize: 16, fontWeight: '800', color: theme.colors.accentDark }}>
+                  -EUR{inc.estimated_amount.toFixed(2)}
+                </Text>
+              )}
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={styles.actionsCard}>
         <Caption muted>Open this route in a navigation app</Caption>
@@ -272,6 +304,12 @@ const styles = {
   priceValue: { fontSize: 32, fontWeight: '800' as const, color: theme.colors.accentDark, letterSpacing: -0.8, marginTop: 2 },
   priceMax: { fontSize: 11, color: theme.colors.accentDark, opacity: 0.7, marginTop: 2 },
   breakdownLink: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4 },
+  incentiveCard: {
+    backgroundColor: theme.colors.accentSoft,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing(4),
+    gap: 10,
+  },
   actionsCard: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,

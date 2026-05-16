@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { Heading, Body, Caption } from '@/components/ui/Heading';
 import { Card } from '@/components/ui/Card';
 import { Pill } from '@/components/ui/Pill';
 import { listMyBookings, listMyTripsAsDriver, listMyDriverBookings } from '@/lib/api';
+import { theme } from '@/lib/theme';
 
 export default function MyTripsScreen() {
   const [asDriver, setAsDriver] = useState<Awaited<ReturnType<typeof listMyTripsAsDriver>>>([]);
@@ -65,9 +67,22 @@ export default function MyTripsScreen() {
             <Link key={b.id} href={{ pathname: '/booking/[id]', params: { id: b.id } }} asChild>
               <Pressable>
                 <Card style={{ gap: 4 }}>
-                  <Heading level="sm">
-                    {b.trip.origin.name} → {b.trip.destination.name}
-                  </Heading>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ flex: 1 }}>
+                      <Heading level="sm">
+                        {b.trip.origin.name} → {b.trip.destination.name}
+                      </Heading>
+                    </View>
+                    <Pressable
+                      hitSlop={8}
+                      onPress={(e) => {
+                        e.stopPropagation?.();
+                        router.push({ pathname: '/chat/[tripId]', params: { tripId: b.trip.id } });
+                      }}
+                    >
+                      <Feather name="message-circle" size={18} color={theme.colors.accent} />
+                    </Pressable>
+                  </View>
                   <Caption>
                     {new Date(b.trip.departure_time).toLocaleString('en-IE')} · with {b.driver.full_name}
                   </Caption>

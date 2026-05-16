@@ -2,12 +2,14 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Toast } from '@/components/Toast';
 import { theme } from '@/lib/theme';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
+      <Toast />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -30,6 +32,11 @@ export default function RootLayout() {
         <Stack.Screen name="subscription" options={{ headerShown: true, title: 'Driver wallet' }} />
         <Stack.Screen name="settings/index" options={{ headerShown: true, title: 'Settings' }} />
         <Stack.Screen name="settings/refund" options={{ headerShown: true, title: 'Wallet refund' }} />
+        <Stack.Screen name="organisations/index" options={{ headerShown: true, title: 'Organisations' }} />
+        <Stack.Screen name="organisations/[id]" options={{ headerShown: true, title: 'Organisation' }} />
+        <Stack.Screen name="chat/[tripId]" options={{ headerShown: true, title: 'Messages' }} />
+        <Stack.Screen name="driver/[id]" options={{ headerShown: true, title: 'Driver' }} />
+        <Stack.Screen name="profile/edit" options={{ headerShown: true, title: 'Edit profile' }} />
       </Stack>
     </SafeAreaProvider>
   );

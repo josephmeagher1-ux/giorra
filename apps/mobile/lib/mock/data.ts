@@ -11,6 +11,8 @@ export interface MockProfile {
   trips_completed: number;
   joined_at: string;
   bio?: string;
+  phone?: string;
+  avatarUrl?: string;
 }
 
 export interface MockVehicle {
@@ -49,6 +51,8 @@ export interface MockTrip {
   cost_breakdown: CostBreakdown | null;
   status: 'published' | 'in_progress' | 'completed' | 'cancelled';
   recurring_pattern_id?: string;
+  routeGeometry?: [number, number][];
+  org_id?: string;
 }
 
 export interface MockRating {
@@ -84,6 +88,8 @@ export const SELF: MockProfile & { preferred_charity_id?: string } = {
   trips_completed: 6,
   joined_at: '2026-01-15T00:00:00Z',
   preferred_charity_id: 'simon',
+  bio: 'Commuting from Naas to Dublin most weekdays.',
+  phone: '+353851234567',
 };
 
 export const DRIVERS: MockProfile[] = [
@@ -189,6 +195,103 @@ export const TRIPS: MockTrip[] = [
     actual_price_per_seat: 7.5,
     cost_breakdown: null,
     status: 'published',
+  },
+];
+
+export interface MockOrganisation {
+  id: string;
+  name: string;
+  type: 'employer' | 'school' | 'university' | 'community';
+  domain?: string;
+  smarter_travel_enrolled: boolean;
+  monthly_budget_eur?: number;
+}
+
+export interface MockOrgIncentive {
+  id: string;
+  org_id: string;
+  type: 'flat_subsidy' | 'per_km_subsidy' | 'free_seats' | 'priority_matching' | 'tax_saver';
+  label: string;
+  description: string;
+  value_eur?: number;
+  value_per_km_eur?: number;
+  max_per_month_eur?: number;
+  max_trips_per_month?: number;
+  eligible_categories: ('commute' | 'school' | 'any')[];
+  active: boolean;
+}
+
+export const ORGANISATIONS: MockOrganisation[] = [
+  {
+    id: 'org1',
+    name: 'TechCo Ireland',
+    type: 'employer',
+    domain: 'techco.ie',
+    smarter_travel_enrolled: true,
+    monthly_budget_eur: 2000,
+  },
+  {
+    id: 'org2',
+    name: 'Scoil Bhride',
+    type: 'school',
+    smarter_travel_enrolled: false,
+    monthly_budget_eur: 500,
+  },
+  {
+    id: 'org3',
+    name: 'University of Limerick',
+    type: 'university',
+    domain: 'ul.ie',
+    smarter_travel_enrolled: true,
+    monthly_budget_eur: 5000,
+  },
+];
+
+export const ORG_INCENTIVES: MockOrgIncentive[] = [
+  {
+    id: 'inc1',
+    org_id: 'org1',
+    type: 'per_km_subsidy',
+    label: 'Smarter Travel Commute Subsidy',
+    description: 'TechCo covers €0.05/km for staff who carpool to the office.',
+    value_per_km_eur: 0.05,
+    max_per_month_eur: 50,
+    max_trips_per_month: 44,
+    eligible_categories: ['commute'],
+    active: true,
+  },
+  {
+    id: 'inc2',
+    org_id: 'org1',
+    type: 'flat_subsidy',
+    label: 'Green Commuter Bonus',
+    description: 'Monthly €25 bonus for 10+ carpool days.',
+    value_eur: 25,
+    max_per_month_eur: 25,
+    eligible_categories: ['commute'],
+    active: true,
+  },
+  {
+    id: 'inc3',
+    org_id: 'org2',
+    type: 'free_seats',
+    label: 'School Carpool Seat',
+    description: 'Scoil Bhride covers one seat per school-run trip.',
+    max_per_month_eur: 60,
+    max_trips_per_month: 40,
+    eligible_categories: ['school'],
+    active: true,
+  },
+  {
+    id: 'inc4',
+    org_id: 'org3',
+    type: 'per_km_subsidy',
+    label: 'UL Green Campus Subsidy',
+    description: 'UL subsidises student and staff carpooling under their Green Campus initiative.',
+    value_per_km_eur: 0.04,
+    max_per_month_eur: 30,
+    eligible_categories: ['commute', 'any'],
+    active: true,
   },
 ];
 

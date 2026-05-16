@@ -98,6 +98,11 @@ export default function BookingDetailScreen() {
           Trip {b.trip_id} · {b.seats} seat · €{b.total_eur.toFixed(2)}
         </Body>
         <Caption>You are the {isRider ? 'rider' : isDriver ? 'driver' : 'observer'}.</Caption>
+        <Button
+          title="Messages"
+          variant="secondary"
+          onPress={() => router.push({ pathname: '/chat/[tripId]', params: { tripId: b.trip_id } })}
+        />
       </Card>
 
       {NOTICE_BOARD ? (

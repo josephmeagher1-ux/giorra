@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Image, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { Heading, Body, Caption } from '@/components/ui/Heading';
@@ -11,6 +11,7 @@ import {
   driverImpactFor,
   getDeclarationsAcceptance,
   getProfile,
+  listMyOrganisations,
   listVehicles,
   ratingForUser,
   setPreferredCharity,
@@ -22,11 +23,14 @@ import {
   DEFAULT_CHARITIES,
 } from '@giorra/shared';
 import { flags } from '@/lib/featureFlags';
+import { theme } from '@/lib/theme';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function ProfileScreen() {
   const signOut = useAuthStore((s) => s.signOut);
+  const avatarUrl = useAuthStore((s) => s.avatarUrl);
   const [vehicles, setVehicles] = useState<Awaited<ReturnType<typeof listVehicles>>>([]);
+  const [myOrgs, setMyOrgs] = useState<Awaited<ReturnType<typeof listMyOrganisations>>>([]);
   const [declAt, setDeclAt] = useState<string | null>(null);
   const [verifications, setVerifications] = useState(listVerifications());
   const [profile, setProfile] = useState(getProfile());
@@ -34,6 +38,7 @@ export default function ProfileScreen() {
 
   const refresh = async () => {
     setVehicles(await listVehicles());
+    setMyOrgs(await listMyOrganisations());
     setDeclAt(getDeclarationsAcceptance().acceptedAt);
     setVerifications(listVerifications());
     setProfile({ ...getProfile() });
@@ -58,11 +63,25 @@ export default function ProfileScreen() {
   return (
     <Screen scroll>
       <Card style={{ gap: 6 }}>
-        <Heading level="xl">{profile.full_name}</Heading>
-        <Caption>
-          ★ {profile.rating.toFixed(2)} · {profile.trips_completed} completed trips · since{' '}
-          {new Date(profile.joined_at).toLocaleDateString('en-IE')}
-        </Caption>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={{ width: 56, height: 56, borderRadius: 28 }} />
+          ) : (
+            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: theme.colors.accentSoft, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: theme.colors.accentDark, fontWeight: '700', fontSize: 20 }}>
+                {profile.full_name.split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()}
+              </Text>
+            </View>
+          )}
+          <View style={{ flex: 1 }}>
+            <Heading level="xl">{profile.full_name}</Heading>
+            <Caption>
+              ★ {profile.rating.toFixed(2)} · {profile.trips_completed} trips · since{' '}
+              {new Date(profile.joined_at).toLocaleDateString('en-IE')}
+            </Caption>
+          </View>
+        </View>
+        <Button title="Edit profile" variant="ghost" onPress={() => router.push('/profile/edit')} />
         <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
           <Pill label={flags.supabaseConfigured ? 'Live data' : 'Mock mode'} variant={flags.supabaseConfigured ? 'accent' : 'warn'} />
           <Pill label={declAt ? 'Declarations signed' : 'Declarations pending'} variant={declAt ? 'accent' : 'warn'} />
@@ -109,6 +128,29 @@ export default function ProfileScreen() {
             />
           ))}
         </View>
+      </Card>
+
+      <Card style={{ gap: 6 }}>
+        <Heading level="md">Organisations</Heading>
+        <Body muted>
+          Join your employer, school, or community to unlock carpooling incentives.
+        </Body>
+        {myOrgs.length > 0 ? (
+          <View style={{ gap: 6 }}>
+            {myOrgs.map((org) => (
+              <Pressable key={org.id} onPress={() => router.push({ pathname: '/organisations/[id]', params: { id: org.id } })}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Body>{org.name}</Body>
+                  <Pill label={org.type} variant="info" />
+                  {org.verified && <Pill label="Verified" variant="accent" />}
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        ) : (
+          <Body muted>Not a member of any organisations yet.</Body>
+        )}
+        <Button title="Browse organisations" variant="secondary" onPress={() => router.push('/organisations')} />
       </Card>
 
       <Card style={{ gap: 6 }}>

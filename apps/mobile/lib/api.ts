@@ -20,12 +20,17 @@ import {
   SELF,
   TRIPS,
   VEHICLES,
+  ORGANISATIONS,
+  ORG_INCENTIVES,
   type MockProfile,
   type MockRecurringPattern,
   type MockTrip,
   type MockVehicle,
+  type MockOrganisation,
+  type MockOrgIncentive,
 } from './mock/data';
 import { shouldUseMocks } from './featureFlags';
+import { notify } from './notifications';
 import {
   createRequest as escrowCreateRequest,
   driverAccept as escrowDriverAccept,
@@ -102,19 +107,15 @@ export interface PreviewResult {
   duration_minutes: number;
   tolls: { name: string; price: number }[];
   cost_breakdown: CostBreakdown;
+  routeGeometry?: [number, number][];
 }
 
 export async function previewTripCost(args: PreviewArgs): Promise<PreviewResult> {
-  await sleep(150);
-  // Mock routing: haversine * 1.25 to approximate real road distance.
-  const straight = haversineDistance(
-    args.origin.lat,
-    args.origin.lng,
-    args.destination.lat,
-    args.destination.lng,
-  );
-  const distance_km = Math.max(1, Math.round(straight * 1.25 * 10) / 10);
-  const duration_minutes = Math.round(distance_km / 90 * 60);
+  const { fetchDrivingRoute } = await import('./routing');
+  const route = await fetchDrivingRoute(args.origin, args.destination);
+
+  const distance_km = route.distance_km;
+  const duration_minutes = route.duration_minutes;
   const tolls = autoDetectTolls(distance_km);
 
   const cost_breakdown = calculateTripCost({
@@ -126,7 +127,7 @@ export async function previewTripCost(args: PreviewArgs): Promise<PreviewResult>
     annual_business_band_km: args.annual_business_band_km,
   });
 
-  return { distance_km, duration_minutes, tolls, cost_breakdown };
+  return { distance_km, duration_minutes, tolls, cost_breakdown, routeGeometry: route.geometry };
 }
 
 export async function listVehicles(ownerId: string = SELF.id): Promise<MockVehicle[]> {
@@ -210,6 +211,7 @@ export async function createTrip(input: {
     actual_price_per_seat: actual,
     cost_breakdown: preview.cost_breakdown,
     status: 'published',
+    routeGeometry: preview.routeGeometry,
   };
   trips = [trip, ...trips];
   return trip;
@@ -252,6 +254,12 @@ export async function bookSeat(args: {
   trips = trips.map((x) =>
     x.id === t.id ? { ...x, booked_seats: x.booked_seats + args.seats } : x,
   );
+  notify({
+    type: 'booking_requested',
+    title: 'New booking request',
+    body: `A rider booked ${args.seats} seat${args.seats > 1 ? 's' : ''} on your ${t.origin.name} → ${t.destination.name} trip.`,
+    data: { trip_id: t.id, booking_id: escrow.id },
+  });
   return { ...booking, escrow_id: escrow.id };
 }
 
@@ -356,6 +364,21 @@ export function getProfile(): MockProfile & { preferred_charity_id?: string } {
   return SELF;
 }
 
+export async function updateProfile(input: { full_name: string; bio?: string; phone?: string }): Promise<void> {
+  await sleep(150);
+  (SELF as any).full_name = input.full_name;
+  if (input.bio !== undefined) (SELF as any).bio = input.bio;
+  if (input.phone !== undefined) (SELF as any).phone = input.phone;
+}
+
+export async function getDriverProfile(driverId: string) {
+  await sleep(100);
+  const profile = findDriver(driverId);
+  const driverVehicles = vehicles.filter((v) => v.owner_id === driverId);
+  const rating = ratingForUser(driverId, 'driver');
+  return { profile, vehicles: driverVehicles, rating };
+}
+
 export function setPreferredCharity(charity_id: string) {
   SELF.preferred_charity_id = charity_id;
 }
@@ -381,6 +404,81 @@ export function driverImpactFor(driverId: string = SELF.id) {
     passengers: t.booked_seats,
     per_seat_eur: t.actual_price_per_seat,
   }));
+}
+
+// ─── Organisation / Smarter Travel APIs ───────────────────────────
+
+let myOrgMemberships: Array<{ org_id: string; role: 'member' | 'admin' | 'champion'; verified: boolean }> = [
+  { org_id: 'org1', role: 'member', verified: true },
+];
+
+export async function listOrganisations(): Promise<MockOrganisation[]> {
+  await sleep(100);
+  return ORGANISATIONS;
+}
+
+export async function getOrganisation(id: string): Promise<MockOrganisation & { incentives: MockOrgIncentive[] }> {
+  await sleep(80);
+  const org = ORGANISATIONS.find((o) => o.id === id);
+  if (!org) throw new Error('Organisation not found');
+  const incentives = ORG_INCENTIVES.filter((i) => i.org_id === id);
+  return { ...org, incentives };
+}
+
+export async function joinOrganisation(orgId: string, method: 'email_domain' | 'invite_code'): Promise<void> {
+  await sleep(200);
+  if (myOrgMemberships.some((m) => m.org_id === orgId)) return;
+  myOrgMemberships.push({ org_id: orgId, role: 'member', verified: method === 'email_domain' });
+}
+
+export async function listMyOrganisations(): Promise<Array<MockOrganisation & { role: string; verified: boolean }>> {
+  await sleep(80);
+  return myOrgMemberships.map((m) => {
+    const org = ORGANISATIONS.find((o) => o.id === m.org_id)!;
+    return { ...org, role: m.role, verified: m.verified };
+  });
+}
+
+export async function getOrgIncentivesForTrip(
+  tripCategory: 'commute' | 'school' | 'any',
+  distanceKm: number,
+  pricePerSeat: number,
+): Promise<Array<MockOrgIncentive & { org_name: string; estimated_amount: number }>> {
+  await sleep(100);
+  const results: Array<MockOrgIncentive & { org_name: string; estimated_amount: number }> = [];
+  for (const m of myOrgMemberships) {
+    if (!m.verified) continue;
+    const org = ORGANISATIONS.find((o) => o.id === m.org_id);
+    if (!org) continue;
+    const incentives = ORG_INCENTIVES.filter((i) => i.org_id === m.org_id && i.active);
+    for (const inc of incentives) {
+      if (!inc.eligible_categories.includes('any') && !inc.eligible_categories.includes(tripCategory)) continue;
+      let amount = 0;
+      switch (inc.type) {
+        case 'flat_subsidy': amount = inc.value_eur ?? 0; break;
+        case 'per_km_subsidy': amount = (inc.value_per_km_eur ?? 0) * distanceKm; break;
+        case 'free_seats': amount = pricePerSeat; break;
+        case 'tax_saver': amount = inc.value_eur ?? 0; break;
+        case 'priority_matching': amount = 0; break;
+      }
+      amount = Math.round(amount * 100) / 100;
+      results.push({ ...inc, org_name: org.name, estimated_amount: amount });
+    }
+  }
+  return results.sort((a, b) => b.estimated_amount - a.estimated_amount);
+}
+
+export async function getOrgDashboard(orgId: string) {
+  await sleep(150);
+  return {
+    total_members: 47,
+    active_members_this_month: 23,
+    total_trips_this_month: 156,
+    total_km_shared: 4820,
+    total_co2_avoided_kg: 482,
+    total_incentive_spent_eur: 312,
+    budget_remaining_eur: (ORGANISATIONS.find((o) => o.id === orgId)?.monthly_budget_eur ?? 0) - 312,
+  };
 }
 
 export const usingMocks = shouldUseMocks();

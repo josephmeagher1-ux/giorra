@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Text } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/components/ui/Screen';
 import { Heading, Caption, Body } from '@/components/ui/Heading';
@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Pill } from '@/components/ui/Pill';
 import { CostBreakdown } from '@/components/CostBreakdown';
-import { createTrip, getDeclarationsAcceptance, listVehicles, previewTripCost } from '@/lib/api';
+import { Feather } from '@expo/vector-icons';
+import { createTrip, getDeclarationsAcceptance, getOrgIncentivesForTrip, listVehicles, previewTripCost } from '@/lib/api';
 import { listVerifications } from '@/lib/identity';
 import { canPerformAction, type CostBreakdown as Breakdown } from '@giorra/shared';
 import { theme } from '@/lib/theme';
@@ -39,6 +40,7 @@ export default function PostTripScreen() {
   const [preview, setPreview] = useState<{ distance_km: number; duration_minutes: number; cost: Breakdown } | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [postIncentives, setPostIncentives] = useState<Awaited<ReturnType<typeof getOrgIncentivesForTrip>>>([]);
 
   useEffect(() => {
     listVehicles().then((v) => {
@@ -63,6 +65,7 @@ export default function PostTripScreen() {
     });
     setPreview({ distance_km: r.distance_km, duration_minutes: r.duration_minutes, cost: r.cost_breakdown });
     setLoadingPreview(false);
+    getOrgIncentivesForTrip('commute', r.distance_km, r.cost_breakdown.max_price_per_seat).then(setPostIncentives);
   };
 
   const onPublish = async () => {
@@ -162,6 +165,16 @@ export default function PostTripScreen() {
       {preview ? (
         <>
           <CostBreakdown breakdown={preview.cost} />
+          {postIncentives.length > 0 && (
+            <Card style={{ backgroundColor: theme.colors.accentSoft, gap: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Feather name="info" size={16} color={theme.colors.accentDark} />
+                <Text style={{ fontWeight: '700', color: theme.colors.accentDark, fontSize: 13 }}>
+                  Riders from {postIncentives[0].org_name} could save up to EUR{Math.max(...postIncentives.map((i) => i.estimated_amount)).toFixed(2)} on this trip
+                </Text>
+              </View>
+            </Card>
+          )}
           <Card style={{ gap: theme.spacing(2) }}>
             <Heading level="md">Your contribution request</Heading>
             <Caption>You can only set this at or below the calculated max (€{preview.cost.max_price_per_seat.toFixed(2)}).</Caption>

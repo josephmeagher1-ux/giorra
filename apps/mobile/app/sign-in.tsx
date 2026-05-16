@@ -1,35 +1,48 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, Platform, Pressable } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, type AuthProvider } from '@/stores/authStore';
 import { flags } from '@/lib/featureFlags';
 import { theme } from '@/lib/theme';
 
-/**
- * Landing / sign-in screen. Mock-mode signs anyone in instantly — Supabase
- * Auth email magic-link wiring goes in here when keys are configured.
- *
- * If the user is already signed in, we redirect them to the tabs root
- * instead of rendering this screen (handles "back button" + URL-typed
- * navigation cases on the web build).
- */
+const MOCK_OAUTH: Record<string, { email: string; displayName: string }> = {
+  google: { email: 'you@gmail.com', displayName: 'Joseph Meagher' },
+  apple: { email: 'you@icloud.com', displayName: 'Joseph M.' },
+  facebook: { email: 'you@facebook.com', displayName: 'Joseph Meagher' },
+};
+
 export default function SignInScreen() {
   const signedIn = useAuthStore((s) => s.signedIn);
   const signIn = useAuthStore((s) => s.signIn);
-  const [email, setEmail] = useState('you@example.ie');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<AuthProvider | null>(null);
 
   if (signedIn) return <Redirect href="/" />;
 
-  const onContinue = async () => {
+  const onEmailContinue = async () => {
+    if (!email.trim()) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 200));
-    signIn(email);
+    await pause(200);
+    signIn({ email: email.trim(), provider: 'email' });
     setLoading(false);
+    router.replace('/');
+  };
+
+  const onOAuth = async (provider: AuthProvider) => {
+    setLoadingProvider(provider);
+    if (flags.supabaseConfigured) {
+      // TODO: call supabase.auth.signInWithOAuth({ provider })
+      // For now fall through to mock
+    }
+    await pause(400);
+    const mock = MOCK_OAUTH[provider] ?? MOCK_OAUTH.google;
+    signIn({ email: mock.email, displayName: mock.displayName, provider });
+    setLoadingProvider(null);
     router.replace('/');
   };
 
@@ -47,11 +60,11 @@ export default function SignInScreen() {
               <Text style={styles.wordmark}>Giorra</Text>
             </View>
             <Text style={styles.tagline}>
-              Carpooling for{'\n'}the trips you’re already taking.
+              Carpooling for{'\n'}the trips you're already taking.
             </Text>
             <Text style={styles.subTagline}>
               Cost-shared, never commercial. Drivers cover their fuel, riders pay a fair seat — and
-              everyone gets where they’re going for less.
+              everyone gets where they're going for less.
             </Text>
           </View>
         </View>
@@ -67,17 +80,50 @@ export default function SignInScreen() {
             <Text style={styles.cardTitle}>Sign in</Text>
             <Text style={styles.cardSub}>
               {flags.supabaseConfigured
-                ? 'We’ll email you a one-time magic link. No password.'
-                : 'Demo mode — any email signs you in instantly.'}
+                ? 'Choose how you\'d like to sign in.'
+                : 'Demo mode — sign in instantly with any method.'}
             </Text>
+
+            <OAuthButton
+              provider="google"
+              label="Continue with Google"
+              icon="G"
+              iconColor="#4285F4"
+              loading={loadingProvider === 'google'}
+              onPress={() => onOAuth('google')}
+            />
+            <OAuthButton
+              provider="apple"
+              label="Continue with Apple"
+              icon=""
+              iconColor="#000"
+              loading={loadingProvider === 'apple'}
+              onPress={() => onOAuth('apple')}
+            />
+            <OAuthButton
+              provider="facebook"
+              label="Continue with Facebook"
+              icon="f"
+              iconColor="#1877F2"
+              loading={loadingProvider === 'facebook'}
+              onPress={() => onOAuth('facebook')}
+            />
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
             <Input
               label="Email"
               autoCapitalize="none"
               keyboardType="email-address"
+              placeholder="you@example.ie"
               value={email}
               onChangeText={setEmail}
             />
-            <Button title="Continue with email" full loading={loading} onPress={onContinue} />
+            <Button title="Continue with email" full loading={loading} onPress={onEmailContinue} />
           </View>
 
           <View style={styles.footer}>
@@ -92,6 +138,38 @@ export default function SignInScreen() {
   );
 }
 
+function OAuthButton({
+  label,
+  icon,
+  iconColor,
+  loading,
+  onPress,
+}: {
+  provider: string;
+  label: string;
+  icon: string;
+  iconColor: string;
+  loading: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={loading}
+      style={({ pressed }) => [
+        styles.oauthBtn,
+        pressed && { backgroundColor: theme.colors.chip },
+        loading && { opacity: 0.6 },
+      ]}
+    >
+      <View style={[styles.oauthIcon, { backgroundColor: iconColor + '14' }]}>
+        <Text style={[styles.oauthIconText, { color: iconColor }]}>{icon}</Text>
+      </View>
+      <Text style={styles.oauthLabel}>{loading ? 'Signing in...' : label}</Text>
+    </Pressable>
+  );
+}
+
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <View style={styles.stat}>
@@ -99,6 +177,10 @@ function Stat({ value, label }: { value: string; label: string }) {
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
+}
+
+function pause(ms: number) {
+  return new Promise<void>((r) => setTimeout(r, ms));
 }
 
 const styles = {
@@ -170,10 +252,38 @@ const styles = {
     borderWidth: 1,
     borderColor: theme.colors.border,
     padding: theme.spacing(5),
-    gap: 8,
+    gap: 10,
   },
   cardTitle: { fontSize: 20, fontWeight: '700' as const, color: theme.colors.text },
   cardSub: { fontSize: 13, color: theme.colors.textMuted, marginBottom: 4 },
+  oauthBtn: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+  },
+  oauthIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  oauthIconText: { fontSize: 16, fontWeight: '700' as const },
+  oauthLabel: { fontSize: 15, fontWeight: '600' as const, color: theme.colors.text },
+  divider: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 12,
+    marginVertical: 4,
+  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: theme.colors.border },
+  dividerText: { fontSize: 12, color: theme.colors.textSubtle },
   footer: { paddingHorizontal: theme.spacing(2), alignItems: 'center' as const },
   footerText: {
     fontSize: 11,

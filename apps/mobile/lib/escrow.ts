@@ -17,6 +17,7 @@ import {
 } from '@giorra/shared';
 import { SELF } from './mock/data';
 import type { MockRating } from './mock/data';
+import { notify } from './notifications';
 
 export interface EscrowBooking {
   id: string;
@@ -85,7 +86,14 @@ export function createRequest(args: {
 }
 
 export function driverAccept(id: string): EscrowBooking {
-  return apply(id, { type: 'driver_accepts' });
+  const result = apply(id, { type: 'driver_accepts' });
+  notify({
+    type: 'booking_accepted',
+    title: 'Booking accepted',
+    body: 'The driver has accepted your booking request.',
+    data: { booking_id: id, trip_id: result.trip_id },
+  });
+  return result;
 }
 
 export function riderDeposit(id: string, charity_id: string): EscrowBooking {
@@ -123,10 +131,17 @@ export function riderConfirmAtPickup(id: string): EscrowBooking {
 }
 
 export function riderConfirmDropoff(id: string): EscrowBooking {
-  return apply(id, {
+  const result = apply(id, {
     type: 'rider_confirms_dropoff',
     at_iso: new Date().toISOString(),
   });
+  notify({
+    type: 'trip_completed',
+    title: 'Trip completed',
+    body: 'The rider has confirmed drop-off. Trip complete!',
+    data: { booking_id: id, trip_id: result.trip_id },
+  });
+  return result;
 }
 
 export function cancelByRider(id: string): EscrowBooking {

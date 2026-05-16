@@ -164,5 +164,26 @@ export type {
   RefundQuote,
 } from './billing';
 
+export {
+  calculateIncentive,
+  bestIncentiveForTrip,
+  SMARTER_TRAVEL_TEMPLATES,
+} from './organisations';
+export type {
+  OrgType,
+  IncentiveType,
+  Organisation,
+  OrgIncentive,
+  OrgMembership,
+  IncentiveClaim,
+  OrgDashboardStats,
+  TripContext,
+  ClaimResult,
+} from './organisations';
+
+export type { Message, MessageInput } from './messaging';
+
+export type { NotificationType, NotificationPayload } from './notifications';
+
 export type { FuelType, TripStatus, BookingStatus } from './types/enums';
 export type * from './types/api';

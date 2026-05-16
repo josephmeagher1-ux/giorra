@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '@/lib/theme';
+import { fetchDrivingRoute, type RouteResult } from '@/lib/routing';
 
 interface Point {
   lat: number;
@@ -12,6 +13,7 @@ interface Point {
 interface Props {
   origin: Point;
   destination: Point;
+  routeGeometry?: [number, number][];
   height?: number;
   interactive?: boolean;
 }
@@ -52,32 +54,36 @@ function loadLeaflet(): Promise<any> {
     script.src = LEAFLET_JS;
     script.async = true;
     script.setAttribute('data-leaflet', '');
-    script.onload = () => (window.L ? resolve(window.L) : reject('Leaflet failed to expose window.L'));
-    script.onerror = () => reject('Leaflet script failed to load');
+    script.onload = () => (window.L ? resolve(window.L) : reject('Leaflet failed'));
+    script.onerror = () => reject('Leaflet script failed');
     document.head.appendChild(script);
   });
   return leafletPromise;
 }
 
-/**
- * Free map preview using OpenStreetMap tiles via Leaflet. No API key, no SDK
- * — Leaflet is lazy-loaded from a CDN on first mount.
- *
- * Web: renders an interactive map with origin/destination markers and a
- * straight-line route hint (proper route polylines require OpenRouteService,
- * which is plumbed but not invoked here to avoid using the free quota for a
- * static demo).
- *
- * Native: renders a styled placeholder card. Native uses the existing
- * "Open in Google Maps / Waze / Apple Maps" deep links from the trip detail
- * page for real-time directions.
- */
-export function MapPreview({ origin, destination, height = 220, interactive = true }: Props) {
+export function MapPreview({ origin, destination, routeGeometry, height = 220, interactive = true }: Props) {
   const ref = useRef<View | null>(null);
   const [ready, setReady] = useState(false);
+  const [route, setRoute] = useState<[number, number][] | null>(routeGeometry ?? null);
 
   useEffect(() => {
-    if (Platform.OS !== 'web') return;
+    if (routeGeometry) {
+      setRoute(routeGeometry);
+      return;
+    }
+    let cancelled = false;
+    fetchDrivingRoute(origin, destination)
+      .then((r) => { if (!cancelled) setRoute(r.geometry); })
+      .catch(() => {
+        if (!cancelled) {
+          setRoute([[origin.lat, origin.lng], [destination.lat, destination.lng]]);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [origin.lat, origin.lng, destination.lat, destination.lng, routeGeometry]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !route) return;
     let map: any;
     let cancelled = false;
     loadLeaflet()
@@ -123,22 +129,14 @@ export function MapPreview({ origin, destination, height = 220, interactive = tr
           .addTo(map)
           .bindPopup(destination.name);
 
-        L.polyline(
-          [
-            [origin.lat, origin.lng],
-            [destination.lat, destination.lng],
-          ],
-          { color: '#0f6e4e', weight: 3, opacity: 0.75, dashArray: '8 6' },
-        ).addTo(map);
+        const routeLine = L.polyline(route, {
+          color: '#0f6e4e',
+          weight: 4,
+          opacity: 0.85,
+          smoothFactor: 1,
+        }).addTo(map);
 
-        map.fitBounds(
-          [
-            [origin.lat, origin.lng],
-            [destination.lat, destination.lng],
-          ],
-          { padding: [40, 40] },
-        );
-
+        map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
         setReady(true);
       })
       .catch(() => setReady(false));
@@ -148,7 +146,7 @@ export function MapPreview({ origin, destination, height = 220, interactive = tr
       if (map) map.remove();
       if (ref.current) (ref.current as unknown as HTMLDivElement).dataset.giorraMap = '';
     };
-  }, [origin.lat, origin.lng, destination.lat, destination.lng, interactive]);
+  }, [route, origin.lat, origin.lng, destination.lat, destination.lng, interactive]);
 
   if (Platform.OS !== 'web') {
     return (
@@ -196,7 +194,9 @@ export function MapPreview({ origin, destination, height = 220, interactive = tr
             justifyContent: 'center',
           }}
         >
-          <Text style={{ color: theme.colors.textMuted, fontSize: 12 }}>Loading map…</Text>
+          <Text style={{ color: theme.colors.textMuted, fontSize: 12 }}>
+            {route ? 'Rendering map...' : 'Loading route...'}
+          </Text>
         </View>
       ) : null}
     </View>
